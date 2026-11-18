@@ -17,10 +17,10 @@ The apps' promise is that files never leave the device. Analytics must not weake
 
 `packages/app-shell` has one analytics adapter. An app chooses a provider in its `app.config.ts`:
 
-| Provider | What it does |
-| --- | --- |
-| `none` | Nothing is loaded and nothing is sent. The default |
-| `posthog` | The SDK's events go to PostHog, in the cookieless setup below |
+| Provider     | What it does                                                                                         |
+| ------------ | ---------------------------------------------------------------------------------------------------- |
+| `none`       | Nothing is loaded and nothing is sent. The default                                                   |
+| `posthog`    | The SDK's events go to PostHog, in the cookieless setup below                                        |
 | `cloudflare` | Cloudflare Web Analytics counts page views. It has no custom events, so the SDK's events aren't sent |
 
 - **The adapter has one input: the SDK's `onEvent` events,** plus a page view. The app passes `onEvent` to its editor, and the adapter forwards it. There's no general `track()` for app code to call with arbitrary data.

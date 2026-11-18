@@ -1,0 +1,10 @@
+# The paths of the full review tier (docs/adr/0004): anything that can
+# change privacy, the response headers, analytics, consent, ads, the shared
+# packages, CI or the supply-chain settings.
+/packages/                @hussmartinez
+/.github/                 @hussmartinez
+/ci/                      @hussmartinez
+/pnpm-workspace.yaml      @hussmartinez
+/docs/adr/                @hussmartinez
+/apps/*/wrangler.jsonc    @hussmartinez
+/apps/*/src/app.config.ts @hussmartinez

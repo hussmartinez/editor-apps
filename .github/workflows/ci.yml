@@ -1,0 +1,184 @@
+name: CI
+
+# Checks every pull request and every push to main (docs/adr/0004), and
+# runs every app's browsers nightly. It builds and tests only: nothing here
+# deploys, and it has no secrets, so pull requests from forks run the same
+# jobs. Never use pull_request_target.
+#
+# The `ci` job is the one required status check. Keep its name.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Cancel a superseded run on the same pull request, but let every run on
+# main finish, so each commit keeps its own result.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Which apps the change affects, from the paths it touches. It needs only
+  # Node and git, so it installs nothing.
+  plan:
+    name: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      apps: ${{ steps.plan.outputs.apps }}
+      engines: ${{ steps.plan.outputs.engines }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+
+      - id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          affected=packages/build-config/src/cli/affected-apps.ts
+          base=
+          if [ "$EVENT" = pull_request ]; then
+            base=$PR_BASE
+          elif [ "$EVENT" = push ] && git cat-file -e "$PUSH_BEFORE^{commit}" 2> /dev/null; then
+            base=$PUSH_BEFORE
+          fi
+
+          # Pull requests test in Chromium. Every engine an app supports
+          # runs nightly, by hand, and when the shared packages change.
+          if [ -z "$base" ]; then
+            apps=$(node "$affected" --all)
+            engines=all
+          else
+            apps=$(node "$affected" "$base" HEAD)
+            if git diff --name-only "$base...HEAD" | grep -q '^packages/'; then
+              engines=all
+            else
+              engines=chromium
+            fi
+          fi
+          echo "apps=$apps" >> "$GITHUB_OUTPUT"
+          echo "engines=$engines" >> "$GITHUB_OUTPUT"
+          echo "Affected apps: $apps, engines: $engines" >> "$GITHUB_STEP_SUMMARY"
+
+  # Reads the browser test image from ci/Dockerfile, its only copy.
+  image:
+    name: image
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      ref: ${{ steps.image.outputs.ref }}
+    steps:
+      - id: image
+        uses: ie-huss-martinez/sdk-ci/image@ace414beadabbad28a5e2609ebdf731a2cac473b # v2.1.0
+
+  # Everything that needs no browser: lint, types, unit tests and the
+  # repository's own checks.
+  checks:
+    name: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          cache: true
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm verify
+
+  # One job per affected app: build it, check that it would deploy, and run
+  # its smoke test against the built output, in the browser test image.
+  app:
+    name: app (${{ matrix.app }})
+    needs: [plan, image]
+    if: ${{ needs.plan.outputs.apps != '[]' && needs.plan.outputs.apps != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJSON(needs.plan.outputs.apps) }}
+    # User 1001 owns the runner's workspace, and Firefox won't start as root
+    # with a home directory owned by another user.
+    container:
+      image: ${{ needs.image.outputs.ref }}
+      options: --user 1001 --ipc=host --init
+    env:
+      APP: "@editor-apps/${{ matrix.app }}"
+      # The job is already in the image, so hm-in-image runs tests directly.
+      HM_VISUAL_CONTAINER: "1"
+      SMOKE_ENGINES: ${{ needs.plan.outputs.engines }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          cache: true
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter "$APP" run build
+
+      # No credentials: it reads the configuration and the assets, and
+      # uploads nothing.
+      - run: pnpm --filter "$APP" run deploy --dry-run
+
+      - run: pnpm --filter "$APP" run test:e2e
+
+      - if: ${{ failure() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-results-${{ matrix.app }}
+          path: |
+            **/test-results/
+            !**/node_modules/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # The required check. A skipped job counts as passing for GitHub, so this
+  # one always runs and fails unless every other job passed or was skipped
+  # on purpose: `app` is skipped when no app is affected.
+  ci:
+    name: ci
+    needs: [plan, image, checks, app]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          PLAN: ${{ needs.plan.result }}
+          IMAGE: ${{ needs.image.result }}
+          CHECKS: ${{ needs.checks.result }}
+          APP: ${{ needs.app.result }}
+        run: |
+          echo "plan=$PLAN image=$IMAGE checks=$CHECKS app=$APP"
+          [ "$PLAN" = success ] && [ "$IMAGE" = success ] && [ "$CHECKS" = success ] || exit 1
+          [ "$APP" = success ] || [ "$APP" = skipped ] || exit 1

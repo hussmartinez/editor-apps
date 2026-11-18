@@ -1,0 +1,26 @@
+{
+  "name": "@editor-apps/build-config",
+  "private": true,
+  "type": "module",
+  "description": "Build and test helpers shared by the apps: the response headers, the Vite preset and the repository's own checks. Never published, and never in a bundle.",
+  "exports": {
+    "./headers": "./src/headers.ts",
+    "./vite": "./src/vite.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "yaml": "catalog:"
+  },
+  "peerDependencies": {
+    "vite": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

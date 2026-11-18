@@ -69,7 +69,7 @@ The domain the apps are served from is configuration, not identity.
 - **Node 24,** from `.node-version`. **pnpm 12.18.0,** from `packageManager`.
 - **Shared tools are pinned once,** in the pnpm catalog of `pnpm-workspace.yaml`: React, Vite and its React plugin, wrangler, TypeScript, Biome and Playwright. Packages refer to them with `catalog:`.
 - **Each app pins its own SDK exactly,** and moves to a new version in its own pull request.
-- **One copy of `sdk-core`, `ui` and React in each app's bundle,** checked by `hm-check-single-copy` per app. Two copies of ui in one page break its providers.
+- **One copy of `sdk-core`, `ui` and React in each app's bundle,** checked per app by `pnpm check:single-copy`. Two copies of ui in one page break its providers.
 - **One version of ui across the repository is the aim, not yet the rule.** Today the SDKs need different ui minors, which a `0.x` caret range keeps apart: pdf-sdk 0.4.0 needs `^0.8.0`, image-sdk 0.6.0 needs `^0.10.0`, video-sdk 0.1.2 needs `^0.7.0`, and audio-sdk 0.5.0 has no editor and so no ui. Until they converge:
   - each app installs the ui version its SDK needs;
   - `app-shell` lists ui, `sdk-core` and React as peer dependencies, so it uses the app's copy, and it uses only what every one of those ui versions has;
@@ -91,3 +91,7 @@ The domain the apps are served from is configuration, not identity.
 - **`app-shell` is limited to what the oldest ui in use offers,** until the SDKs converge on one minor. Converging is tracked in `NEXT_STEPS.md`.
 - **A domain change is configuration only.**
 - **The repository needs a licence** before the apps are imported. Without one, the code is public but all rights are reserved.
+
+## Amendments
+
+- **2026-11-18, with the scaffold:** the single-copy check is named as the repository's own, `pnpm check:single-copy`. `hm-check-single-copy` checks a whole lockfile, and can't allow apps to differ from each other.
