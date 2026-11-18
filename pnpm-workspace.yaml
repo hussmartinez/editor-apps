@@ -25,8 +25,10 @@ catalog:
 # Dependency install scripts are blocked unless allowlisted here. A package
 # set to false is refused on purpose, so strictDepBuilds doesn't fail on it:
 # esbuild and workerd find their binaries through their optional platform
-# packages, without their postinstall scripts.
+# packages, without their postinstall scripts, and core-js's only prints a
+# funding message.
 allowBuilds:
+  core-js: false
   esbuild: false
   workerd: false
 # Fail the install when an unapproved package wants to run a build script.

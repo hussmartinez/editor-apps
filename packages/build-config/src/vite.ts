@@ -29,6 +29,14 @@ export interface EditorAppOptions {
   };
 }
 
+/** The dev server's content types for an SDK's assets. Production's come from Cloudflare. */
+const CONTENT_TYPES: Record<string, string> = {
+  ".js": "text/javascript",
+  ".mjs": "text/javascript",
+  ".wasm": "application/wasm",
+  ".json": "application/json",
+};
+
 /**
  * The Vite plugin every app uses. It writes `_headers` into the build for
  * Cloudflare's static assets, sends the same headers from `vite preview`,
@@ -65,8 +73,10 @@ export function editorApp(options: EditorAppOptions = {}): Plugin {
         if (!file.startsWith(path.resolve(assets.from) + path.sep) || !existsSync(file)) {
           return next();
         }
-        const type = file.endsWith(".wasm") ? "application/wasm" : "text/javascript";
-        response.setHeader("Content-Type", type);
+        response.setHeader(
+          "Content-Type",
+          CONTENT_TYPES[path.extname(file)] ?? "application/octet-stream",
+        );
         response.end(readFileSync(file));
       });
     },
