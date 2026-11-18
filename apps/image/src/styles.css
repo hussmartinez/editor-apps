@@ -1,0 +1,75 @@
+/* Host layout only: the editor's own look comes from ui's tokens and the brand theme. */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--hm-color-bg);
+  color: var(--hm-color-text);
+  font-family: var(--hm-font-family);
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--hm-color-border);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.app-eyebrow {
+  margin: 0 0 0.25rem;
+  color: var(--hm-color-accent-text);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.app-status {
+  max-width: 28rem;
+  margin: 0;
+  color: var(--hm-color-text-muted);
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.app-editor {
+  flex: 1;
+  min-width: 0;
+  /* The editor needs a practical height even on short screens; the page scrolls below it. */
+  min-height: 32rem;
+}
+
+.app-error {
+  margin: auto;
+  max-width: 32rem;
+  padding: 2rem;
+}
+
+.app-error h2 {
+  margin-top: 0;
+}
