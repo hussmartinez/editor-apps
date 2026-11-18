@@ -1,6 +1,6 @@
 # 0005. Anonymous analytics through one adapter, and consent only where needed
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-18
 
 ## Context

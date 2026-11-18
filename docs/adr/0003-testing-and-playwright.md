@@ -1,6 +1,6 @@
 # 0003. Test the app, not the SDK; Playwright in one pinned image
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-18
 
 ## Context

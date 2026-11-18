@@ -1,6 +1,6 @@
 # 0002. One app shell, so the four apps look and behave alike
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-18
 
 ## Context

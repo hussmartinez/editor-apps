@@ -1,6 +1,6 @@
 # 0004. CI on every pull request, deploys in Workers Builds, and review tiers
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-18
 
 ## Context

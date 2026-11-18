@@ -1,6 +1,6 @@
 # 0006. Ads only in a sandboxed frame from another origin
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-18
 
 ## Context
