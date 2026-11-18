@@ -16,7 +16,10 @@ What's planned, in order. One pull request at a time. The decisions behind each 
 
 One pull request per app, each as one import commit that names the private repository and the commit it came from.
 
-- [ ] **audio,** then **video**, **image** and **pdf**.
+- [x] **audio** (2026-11-19)
+- [ ] **video**
+- [ ] **image**
+- [ ] **pdf**
 
 For each app:
 
@@ -25,8 +28,6 @@ For each app:
 - **Move it onto `build-config`:** the `editorApp` Vite plugin replaces the app's own `_headers`, headers code and asset copying.
 - **Trim its tests to the rule in ADR 0003,** and list in the pull request what was dropped and why.
 - **It must build, pass its smoke test in the pinned image, and pass `wrangler deploy --dry-run`.**
-
-The first import also adds what needs an app to be tested: the Playwright smoke preset in `build-config`, and the `test:e2e` script that CI's per-app job calls.
 
 After the imports, the reviewer points each Worker's Workers Builds connection at this repository, and the old repositories are archived.
 

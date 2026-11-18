@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { build, preview } from "vite";
+import { build, createServer, preview } from "vite";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { contentSecurityPolicy } from "./headers.ts";
 import { editorApp } from "./vite.ts";
@@ -68,6 +68,27 @@ describe("editorApp", () => {
         contentSecurityPolicy({ wasm: true }),
       );
       expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+    } finally {
+      await server.close();
+    }
+  });
+
+  it("serves the SDK's assets from the dev server at the same path, and nothing outside them", async () => {
+    const server = await createServer({
+      root,
+      logLevel: "silent",
+      configFile: false,
+      server: { port: 0, host: "127.0.0.1" },
+      plugins: [editorApp({ sdkAssets: { from: path.join(root, "sdk"), url: "/sdk/1.2.3/" } })],
+    });
+    try {
+      await server.listen();
+      const base = String(server.resolvedUrls?.local[0]).replace(/\/$/, "");
+      const worker = await fetch(`${base}/sdk/1.2.3/workers/worker.js`);
+      expect(await worker.text()).toBe("// a worker");
+      expect(worker.headers.get("content-type")).toBe("text/javascript");
+      const outside = await fetch(`${base}/sdk/1.2.3/..%2F..%2Fmain.js`);
+      expect(await outside.text()).not.toContain("document.title");
     } finally {
       await server.close();
     }

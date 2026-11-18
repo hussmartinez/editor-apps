@@ -10,7 +10,7 @@ Each app is a thin shell around an editor SDK of the [`@hussmartinez`](https://w
 
 | Path                     | What it holds                                                                                                                                        |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/<app>/`            | One app each: `pdf`, `audio`, `image` and `video`. None is here yet                                                                                  |
+| `apps/<app>/`            | One app each: `pdf`, `audio`, `image` and `video`, arriving one pull request at a time                                                               |
 | `packages/build-config/` | Build and test helpers: the response headers and Content Security Policy, the Vite plugin, and the repository's own checks. Private, never published |
 | `packages/app-shell/`    | Planned: the page around every editor                                                                                                                |
 | `docs/adr/`              | The decisions behind the repository                                                                                                                  |
@@ -37,7 +37,7 @@ pnpm verify
 | No domain outside app configuration         | `pnpm check:domains`          |
 | Playwright pinned to the image's version    | `pnpm check:playwright-image` |
 
-CI also builds each app a change affects, checks that it would deploy, and runs its smoke test in the pinned image. `pnpm affected <base>` prints which apps those are.
+CI also builds each app a change affects, checks that it would deploy, and runs its smoke test in the pinned image. `pnpm affected <base>` prints which apps those are. To run an app's smoke test locally, build it, then run `pnpm --filter @editor-apps/<app> test:e2e`, which needs Docker.
 
 ## Rules
 
