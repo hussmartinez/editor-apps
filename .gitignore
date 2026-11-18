@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+test-results
+playwright-report
+.wrangler
+*.tsbuildinfo
+.DS_Store
+# Never commit environment files: build variables live in Workers Builds.
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*

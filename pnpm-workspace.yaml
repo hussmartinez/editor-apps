@@ -1,0 +1,42 @@
+packages:
+  - apps/*
+  - packages/*
+
+# One version of each shared tool for the whole repository (docs/adr/0001).
+# Packages refer to these with `catalog:`. An app's SDK, and the ui and
+# sdk-core versions that SDK needs, are pinned in the app's own package.json.
+catalog:
+  "@biomejs/biome": 2.6.8
+  "@hussmartinez/sdk-config": 0.9.0
+  "@playwright/test": 1.65.1
+  "@types/node": 24.19.2
+  "@types/react": 19.3.0
+  "@types/react-dom": 19.3.0
+  "@vitejs/plugin-react": 6.3.0
+  react: 19.3.1
+  react-dom: 19.3.1
+  typescript: 6.0.3
+  vite: 8.3.8
+  vitest: 5.1.0
+  wrangler: 4.163.0
+  yaml: 2.9.1
+
+# Supply-chain hardening, as in the @hussmartinez SDK repositories.
+# Dependency install scripts are blocked unless allowlisted here. A package
+# set to false is refused on purpose, so strictDepBuilds doesn't fail on it:
+# esbuild and workerd find their binaries through their optional platform
+# packages, without their postinstall scripts.
+allowBuilds:
+  esbuild: false
+  workerd: false
+# Fail the install when an unapproved package wants to run a build script.
+strictDepBuilds: true
+# Don't resolve versions published less than a day ago, except the family's
+# own packages, which are pinned exactly and published with provenance.
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - "@hussmartinez/*"
+# Refuse a version with weaker publish provenance than an earlier one.
+trustPolicy: no-downgrade
+# Transitive dependencies must come from the registry, not git or tarball URLs.
+blockExoticSubdeps: true

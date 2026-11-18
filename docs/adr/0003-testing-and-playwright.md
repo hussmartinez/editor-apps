@@ -19,14 +19,14 @@ What only the app can get wrong is small: its response headers, where it serves 
 
 An app's tests cover only what the app adds.
 
-| An app tests | An app doesn't test |
-| --- | --- |
-| The page loads with its Content Security Policy and other headers | Editing features: tools, undo, keyboard paths inside the editor |
-| No policy violation, console error, failed response or request to another origin | Pixels, pages or audio of the SDK's output |
-| The SDK's assets load from the app's own self-hosted path | Formats and codecs the SDK supports |
-| One minimal round trip: open a file, export, and get a valid file of the right type | The content of the exported file beyond its type |
-| The shell: header, footer, theme, error boundary, consent, ad slot, leave guard | ui's components |
-| Analytics events reach the configured provider, and nothing else does | The SDK's event contents |
+| An app tests                                                                        | An app doesn't test                                             |
+| ----------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| The page loads with its Content Security Policy and other headers                   | Editing features: tools, undo, keyboard paths inside the editor |
+| No policy violation, console error, failed response or request to another origin    | Pixels, pages or audio of the SDK's output                      |
+| The SDK's assets load from the app's own self-hosted path                           | Formats and codecs the SDK supports                             |
+| One minimal round trip: open a file, export, and get a valid file of the right type | The content of the exported file beyond its type                |
+| The shell: header, footer, theme, error boundary, consent, ad slot, leave guard     | ui's components                                                 |
+| Analytics events reach the configured provider, and nothing else does               | The SDK's event contents                                        |
 
 - **The round trip proves the wiring,** not the feature: the worker starts under the policy, a file opens, and an export downloads. One fixture per app, as small as possible, generated in the test or committed when it can't be.
 - **The existing suites are trimmed on import.** Tests of SDK behaviour are dropped, after checking that the SDK has an equivalent. One that doesn't is reported to the SDK's repository as a gap, not kept here.

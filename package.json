@@ -1,0 +1,26 @@
+{
+  "name": "editor-apps",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.18.0",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "check:single-copy": "node packages/build-config/src/cli/check-single-copy.ts",
+    "check:domains": "node packages/build-config/src/cli/check-domains.ts",
+    "check:playwright-image": "hm-check-playwright-image",
+    "affected": "node packages/build-config/src/cli/affected-apps.ts",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm check:single-copy && pnpm check:domains && pnpm check:playwright-image"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "@hussmartinez/sdk-config": "catalog:",
+    "@playwright/test": "catalog:",
+    "typescript": "catalog:"
+  }
+}
