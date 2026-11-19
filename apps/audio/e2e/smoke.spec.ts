@@ -1,5 +1,10 @@
 import { readFile } from "node:fs/promises";
-import { expect, expectSecurityHeaders, test } from "@editor-apps/build-config/playwright";
+import {
+  expect,
+  expectSdkAssets,
+  expectSecurityHeaders,
+  test,
+} from "@editor-apps/build-config/playwright";
 
 const RATE = 44_100;
 
@@ -60,11 +65,5 @@ test("a recording opens and exports as a WAV file, with the SDK's worker from th
   expect(wav.toString("ascii", 8, 12)).toBe("WAVE");
   expect(wav.length).toBeGreaterThan(44);
 
-  // The engine and the processor each start the worker, from this origin.
-  const origin = new URL(page.url()).origin;
-  const workers = problems.requests.filter((url) => url.endsWith("/audio/audio.worker.js"));
-  expect(workers.length).toBeGreaterThan(0);
-  for (const worker of workers) {
-    expect(worker).toMatch(new RegExp(`^${origin}/audio-sdk/[\\d.]+/audio/audio\\.worker\\.js$`));
-  }
+  expectSdkAssets(problems, page, "@hussmartinez/audio-sdk");
 });

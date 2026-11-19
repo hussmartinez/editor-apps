@@ -94,6 +94,27 @@ describe("editorApp", () => {
     }
   });
 
+  it("passes a malformed URL on to Vite, and keeps serving", async () => {
+    const server = await createServer({
+      root,
+      logLevel: "silent",
+      configFile: false,
+      server: { port: 0, host: "127.0.0.1" },
+      plugins: [editorApp({ sdkAssets: { from: path.join(root, "sdk"), url: "/sdk/1.2.3/" } })],
+    });
+    try {
+      await server.listen();
+      const base = String(server.resolvedUrls?.local[0]).replace(/\/$/, "");
+      // %E0 starts a UTF-8 sequence that never ends, so decodeURIComponent throws on it.
+      const malformed = await fetch(`${base}/sdk/1.2.3/%E0`);
+      expect(malformed.status).not.toBe(500);
+      const worker = await fetch(`${base}/sdk/1.2.3/workers/worker.js`);
+      expect(await worker.text()).toBe("// a worker");
+    } finally {
+      await server.close();
+    }
+  });
+
   it("refuses an assets path that isn't a plain directory path", () => {
     for (const url of ["sdk/", "/sdk", "/sdk/../", "/sdk/*/", "https://cdn.example/sdk/"]) {
       expect(() => editorApp({ sdkAssets: { from: ".", url } })).toThrow(TypeError);

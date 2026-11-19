@@ -1,8 +1,11 @@
+import { createRequire } from "node:module";
+import path from "node:path";
 import {
   test as base,
   defineConfig,
   devices,
   expect,
+  type Page,
   type PlaywrightTestConfig,
 } from "@playwright/test";
 
@@ -32,12 +35,15 @@ export interface SmokeOptions {
  * `SMOKE_ENGINES=all`, as CI sets nightly and when the shared packages
  * change, every engine the app supports.
  *
- * Build the app first: the server is `vite preview`, which serves `dist`
- * with the headers of the `editorApp` plugin.
+ * By default it tests the app's build, served by `vite preview` with the
+ * headers of the `editorApp` plugin: build the app first. With
+ * `SMOKE_BASE_URL`, such as the app's production address, it tests that
+ * deployment instead, and starts no server.
  */
 export function smokeConfig({ port, engines }: SmokeOptions): PlaywrightTestConfig {
   const run = process.env.SMOKE_ENGINES === "all" ? engines : engines.slice(0, 1);
-  const url = `http://127.0.0.1:${port}`;
+  const deployment = process.env.SMOKE_BASE_URL;
+  const url = deployment ? new URL(deployment).origin : `http://127.0.0.1:${port}`;
   return defineConfig({
     testDir: "e2e",
     forbidOnly: Boolean(process.env.CI),
@@ -45,12 +51,16 @@ export function smokeConfig({ port, engines }: SmokeOptions): PlaywrightTestConf
     reporter: process.env.CI ? "line" : "list",
     use: { baseURL: url, trace: "retain-on-failure" },
     projects: run.map((engine) => ({ name: engine, use: { ...devices[DEVICES[engine]] } })),
-    webServer: {
-      command: `pnpm exec vite preview --host 127.0.0.1 --port ${port} --strictPort`,
-      url,
-      reuseExistingServer: !process.env.CI,
-      timeout: 60_000,
-    },
+    ...(deployment
+      ? {}
+      : {
+          webServer: {
+            command: `pnpm exec vite preview --host 127.0.0.1 --port ${port} --strictPort`,
+            url,
+            reuseExistingServer: !process.env.CI,
+            timeout: 60_000,
+          },
+        }),
   });
 }
 
@@ -64,20 +74,42 @@ export interface Problems {
   readonly requests: string[];
 }
 
+/** Options an app sets with `test.use()`. */
+export interface SmokeTestOptions {
+  /**
+   * The origins of the app's analytics provider (docs/adr/0005). Requests to
+   * them don't count as foreign, and are answered in the browser with an
+   * empty 204, so a test never sends events to the real provider, even
+   * against a deployment that has a key. Empty by default.
+   */
+  readonly analyticsOrigins: readonly string[];
+}
+
 /**
  * Playwright's `test`, with a `problems` fixture that every test gets
  * whether it asks or not: it records console errors, uncaught errors,
  * Content Security Policy violations, HTTP errors, failed requests and
  * requests to another origin, and fails the test if there were any.
  *
- * A test that expects one, such as an analytics request, removes it from
- * `problems` before it ends.
+ * A test that expects one removes it from `problems` before it ends.
  */
-export const test = base.extend<{ problems: Problems }>({
+export const test = base.extend<SmokeTestOptions & { problems: Problems }>({
+  analyticsOrigins: [[], { option: true }],
   problems: [
-    async ({ page, baseURL }, use) => {
+    async ({ page, baseURL, analyticsOrigins }, use) => {
       const problems: Problems = { errors: [], foreign: [], requests: [] };
       const own = new URL(baseURL ?? "http://127.0.0.1").origin;
+      const analytics = new Set(analyticsOrigins.map((origin) => new URL(origin).origin));
+      // Answering the app's own origin would answer its pages too.
+      if (analytics.has(own)) {
+        throw new Error(`analyticsOrigins includes the app's own origin, ${own}.`);
+      }
+      if (analytics.size > 0) {
+        await page.context().route(
+          (url) => analytics.has(url.origin),
+          (route) => route.fulfill({ status: 204 }),
+        );
+      }
       page.on("console", (message) => {
         if (message.type() === "error") problems.errors.push(`console: ${message.text()}`);
       });
@@ -100,7 +132,9 @@ export const test = base.extend<{ problems: Problems }>({
       page.context().on("request", (request) => {
         const url = request.url();
         problems.requests.push(url);
-        if (!/^(blob|data):/.test(url) && new URL(url).origin !== own) problems.foreign.push(url);
+        if (/^(blob|data):/.test(url)) return;
+        const { origin } = new URL(url);
+        if (origin !== own && !analytics.has(origin)) problems.foreign.push(url);
       });
       await page.addInitScript(() => {
         document.addEventListener("securitypolicyviolation", (event) => {
@@ -129,4 +163,26 @@ export function expectSecurityHeaders(headers: Record<string, string>): void {
   expect(headers["referrer-policy"]).toBe("no-referrer");
   expect(headers["x-frame-options"]).toBe("DENY");
   expect(headers["permissions-policy"]).toContain("camera=()");
+}
+
+/**
+ * Checks that the app loaded its SDK's assets, such as workers, WebAssembly
+ * and data files, and only from its own origin under the installed SDK's
+ * version: `/<sdk>/<version>/`, as the `editorApp` plugin serves them.
+ *
+ * The version is read from the SDK's `package.json`, resolved from the
+ * app's folder, which is where Playwright runs. An upgrade needs no change
+ * to the test, and a stale asset from another version fails it.
+ *
+ * @param packageName - Such as `@hussmartinez/pdf-sdk`.
+ */
+export function expectSdkAssets(problems: Problems, page: Page, packageName: string): void {
+  const manifest = createRequire(path.join(process.cwd(), "package.json"))(
+    `${packageName}/package.json`,
+  ) as { version: string };
+  const name = packageName.split("/").pop() ?? packageName;
+  const base = `${new URL(page.url()).origin}/${name}/${manifest.version}/`;
+  const assets = problems.requests.filter((url) => url.includes(`/${name}/`));
+  expect(assets.length, `requests for ${packageName}'s assets`).toBeGreaterThan(0);
+  for (const asset of assets) expect(asset.startsWith(base), asset).toBe(true);
 }

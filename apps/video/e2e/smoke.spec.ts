@@ -1,11 +1,10 @@
 import { readFile } from "node:fs/promises";
-import { createRequire } from "node:module";
-import { expect, expectSecurityHeaders, test } from "@editor-apps/build-config/playwright";
-
-/** The installed SDK's version, which names the path its workers must load from. */
-const { version: sdkVersion } = createRequire(import.meta.url)(
-  "@hussmartinez/video-sdk/package.json",
-) as { version: string };
+import {
+  expect,
+  expectSdkAssets,
+  expectSecurityHeaders,
+  test,
+} from "@editor-apps/build-config/playwright";
 
 /** One second of a test pattern and a tone, from FFmpeg's synthetic sources (make-fixture.sh). */
 const fixture = new URL("./fixtures/clip.webm", import.meta.url);
@@ -58,11 +57,7 @@ test("a video opens and exports as a video file, with the SDK's workers from thi
   expect(hasVideoTrack(video), "a video track").toBe(true);
   expect(video.byteLength).toBeGreaterThan(1_000);
 
-  // Every worker comes from this origin, under the installed SDK's version.
-  const assets = `${new URL(page.url()).origin}/video-sdk/${sdkVersion}/video/`;
-  const workers = problems.requests.filter((url) => url.endsWith(".worker.js"));
-  expect(workers.length).toBeGreaterThan(0);
-  for (const worker of workers) expect(worker.startsWith(assets), worker).toBe(true);
+  expectSdkAssets(problems, page, "@hussmartinez/video-sdk");
 });
 
 /**
