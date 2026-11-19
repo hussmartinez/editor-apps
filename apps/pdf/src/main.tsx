@@ -3,7 +3,8 @@ import "@hussmartinez/ui/styles.css";
 import "@hussmartinez/pdf-sdk/styles.css";
 import "virtual:theme.css";
 import "@editor-apps/app-shell/styles.css";
-import { AppShell, startApp, useAnalytics } from "@editor-apps/app-shell";
+import { AppShell, startApp, type UnsavedAfter, useEditorEvents } from "@editor-apps/app-shell";
+import type { PdfSessionEvent } from "@hussmartinez/pdf-sdk";
 import { PdfEditor, type PdfEditorChange } from "@hussmartinez/pdf-sdk/react";
 import { useCallback, useState } from "react";
 import { appConfig } from "./app.config.ts";
@@ -23,13 +24,34 @@ function describe({ fileName, pageCount }: DocumentStatus): string {
 }
 
 /**
+ * What pdf-sdk's events mean for the leave guard (docs/adr/0002): an edit
+ * arms it; downloading the document, which follows its export at once,
+ * or opening or closing one clears it. A failure changes nothing.
+ */
+const unsavedAfter: UnsavedAfter<PdfSessionEvent> = (event) => {
+  switch (event.type) {
+    case "pages_inserted":
+    case "command":
+    case "undo":
+    case "redo":
+      return true;
+    case "document_opened":
+    case "document_exported":
+    case "document_closed":
+      return false;
+    default:
+      return undefined;
+  }
+};
+
+/**
  * pdf-sdk's `PdfEditor` in the shared shell (docs/adr/0002), with the open
  * document's name and page count in the header. Its workers and data come
  * from the app's own origin (vite.config.ts), and its anonymous events go
- * to the app's analytics (docs/adr/0005).
+ * to the app's analytics (docs/adr/0005) and to the leave guard.
  */
 function App() {
-  const analytics = useAnalytics();
+  const editor = useEditorEvents(unsavedAfter);
   const [status, setStatus] = useState<DocumentStatus>({ pageCount: 0 });
 
   // The file name comes only with `open`; edits keep it, closing clears it.
@@ -45,13 +67,18 @@ function App() {
 
   return (
     // The name comes from the file, so it's rendered only as text.
-    <AppShell title={appConfig.title} tagline={appConfig.tagline} status={describe(status)}>
+    <AppShell
+      title={appConfig.title}
+      tagline={appConfig.tagline}
+      unsaved={editor.unsaved}
+      status={describe(status)}
+    >
       <PdfEditor
         className="app-editor"
         assetsUrl={__SDK_ASSETS_URL__}
         filePolicy={FILE_POLICY}
         onChange={handleChange}
-        onEvent={analytics.editorEvent}
+        onEvent={editor.onEvent}
       />
     </AppShell>
   );

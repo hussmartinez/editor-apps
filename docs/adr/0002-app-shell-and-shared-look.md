@@ -1,6 +1,6 @@
 # 0002. One app shell, so the four apps look and behave alike
 
-- **Status:** Accepted, amended 2026-11-19
+- **Status:** Accepted, amended 2026-11-19 (twice)
 - **Date:** 2026-11-18
 
 ## Context
@@ -75,3 +75,23 @@ Huss approved building the shell with these changes to the decision above. Where
 - **Screenshot tests cover the shell's header only,** in light and dark, in Chromium in the pinned image, with `expectShellLook` from build-config, which also checks that the skip link reaches the editor. Comparing the whole page would make every SDK upgrade, Dependabot's included, change four sets of screenshots. The error boundary is covered by the shell's unit tests, since a built app has no way to crash on purpose.
 - **One copy of React, ui and sdk-core per bundle,** not only per lockfile. A workspace package resolves its own development copies, so `editorApp` sets Vite's `resolve.dedupe` for them, and the build fails if it bundles two versions of any family package or React.
 - **The visual change is deliberate:** every app gets the same compact header, with the app's name, its tagline and an optional status. Video loses its mark, image its eyebrow and changing status, and pdf its eyebrow, serif title and narrow masthead. The editors keep their own look; the space around them is now the same in every app.
+
+## Amendment, 2026-11-19: the leave guard
+
+Huss approved the leave guard as follows. It refines "The leave guard" above.
+
+- **The browser's own prompt only.** While there are unexported edits, the shell's `beforeunload` listener calls `preventDefault()`. It sets no text, since browsers ignore it, and it adds no dialog of its own. The listener exists only while the guard is armed, so an untouched page stays eligible for the back/forward cache.
+- **Armed after an edit, cleared after an export.** Opening a new document or closing one also clears it. Undoing back to the opened document doesn't: the shell doesn't compare documents, so it may ask once too often, never once too few.
+- **The signal is each SDK's `onEvent`,** the anonymous events the apps already send to analytics, because every SDK has them and none of them change the download. `onExport` can't serve: in every SDK it replaces the browser's download. `onChange` isn't in every SDK either: video-sdk has none.
+- **The shell knows no SDK.** `AppShell` takes `unsaved`, and `useEditorEvents(unsavedAfter)` gives the editor's `onEvent`, which forwards each event to analytics and keeps `unsaved` current. Each app's `unsavedAfter` says what its SDK's events mean: `true` after an edit, `false` after an export, an open or a close, and nothing for a failure or a cancelled step.
+
+| App   | Arms the guard                                   | Clears it                                                    |
+| ----- | ------------------------------------------------ | ------------------------------------------------------------ |
+| pdf   | `pages_inserted`, `command`, `undo`, `redo`      | `document_opened`, `document_exported`, `document_closed`    |
+| audio | `recording_inserted`, `command`, `undo`, `redo`  | `recording_opened`, `recording_exported`, `recording_closed` |
+| image | `insert`, `execute`, `undo`, `redo`, when `done` | `open`, `export`, when `done`                                |
+| video | `insert`, `execute`, `undo`, `redo`, when `done` | `export`, when `done`                                        |
+
+- **A known gap: exported, but not downloaded.** pdf saves the file as soon as it's built, so its event means the file is saved. Image, audio and video build the file in their export dialog and then wait for its Download button, and their event comes when the file is built. If a person exports and then leaves without pressing Download, the guard doesn't ask. The gap is narrow, since the dialog stays open with the button in view, and accepted. The apps don't take over the download to close it. When those SDKs report that a file was saved, the apps clear the guard on that event instead.
+- **Video arms the guard as soon as a clip is added,** since adding clips is how a video is made, and video-sdk has no event for opening a file.
+- **Tests:** the shell's unit tests check the guard and `useEditorEvents` with a cancelable `beforeunload`; each app's round trip checks the guard is off after opening, on after an edit, and off after the export, in every browser it's tested in.

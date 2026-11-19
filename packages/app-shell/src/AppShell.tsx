@@ -1,6 +1,7 @@
 import { AnnouncerProvider, UiMessagesProvider } from "@hussmartinez/ui/react";
 import type { ReactNode } from "react";
 import { ErrorBoundary } from "./ErrorBoundary.tsx";
+import { useLeaveGuard } from "./leave-guard.ts";
 import { messages } from "./messages.ts";
 
 export interface AppShellProps {
@@ -13,6 +14,12 @@ export interface AppShellProps {
    * shown in the header as an `<output>`. Render file names only as text.
    */
   readonly status?: ReactNode;
+  /**
+   * Whether there are edits the person hasn't exported. While `true`, the
+   * browser asks before the page is left. Use `useEditorEvents` to track it
+   * from the SDK's events.
+   */
+  readonly unsaved?: boolean;
   /** The SDK's editor, which fills the main area. Give it the class `app-editor`. */
   readonly children: ReactNode;
 }
@@ -20,10 +27,12 @@ export interface AppShellProps {
 /**
  * The page around every app's editor (docs/adr/0002): ui's providers, a
  * skip link, a header with the app's name as the only `<h1>`, the `<main>`
- * landmark at full height, and the shared error boundary around the editor. Import
+ * landmark at full height, the shared error boundary around the editor, and
+ * the leave guard while there are unsaved edits. Import
  * `@editor-apps/app-shell/styles.css` after ui's and the SDK's stylesheets.
  */
-export function AppShell({ title, tagline, status, children }: AppShellProps) {
+export function AppShell({ title, tagline, status, unsaved = false, children }: AppShellProps) {
+  useLeaveGuard(unsaved);
   return (
     <UiMessagesProvider messages={messages}>
       <AnnouncerProvider>

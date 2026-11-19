@@ -8,6 +8,7 @@ import {
   expectSecurityHeaders,
   expectShellLook,
   expectThirdPartyLicenses,
+  leavingAsks,
   test,
 } from "@editor-apps/build-config/playwright";
 import { appConfig } from "../src/app.config.ts";
@@ -37,7 +38,7 @@ test("the page is served with its headers, and has the shell's landmarks", async
   await expectThirdPartyLicenses(page, "@hussmartinez/pdf-sdk");
 });
 
-test("a PDF opens and downloads as a PDF file, with the SDK's assets from this origin", async ({
+test("a PDF opens, is edited and downloads, guarded until then, with the SDK's assets from this origin", async ({
   page,
   problems,
 }) => {
@@ -51,6 +52,15 @@ test("a PDF opens and downloads as a PDF file, with the SDK's assets from this o
   // The app's own status line, fed by the SDK's change events.
   await expect(page.locator("header output")).toHaveText("blank.pdf · 1 page");
 
+  // The leave guard: off for an untouched document, on after an edit, and
+  // off again once the edited document is downloaded.
+  expect(await leavingAsks(page)).toBe(false);
+  await page
+    .getByRole("toolbar", { name: "PDF tools" })
+    .getByRole("button", { name: "Rotate right" })
+    .click();
+  await expect.poll(() => leavingAsks(page)).toBe(true);
+
   const saving = page.waitForEvent("download");
   await page
     .getByRole("toolbar", { name: "PDF tools" })
@@ -59,6 +69,7 @@ test("a PDF opens and downloads as a PDF file, with the SDK's assets from this o
   const pdf = await readFile(await (await saving).path());
   expect(pdf.toString("ascii", 0, 5)).toBe("%PDF-");
   expect(pdf.byteLength).toBeGreaterThan(100);
+  await expect.poll(() => leavingAsks(page)).toBe(false);
 
   expectSdkAssets(problems, page, "@hussmartinez/pdf-sdk");
   await expectAnalytics(problems, analytics, appConfig.app);
