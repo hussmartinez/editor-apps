@@ -43,7 +43,12 @@ function App() {
   );
 }
 
-createRoot(document.getElementById("root") as HTMLElement).render(
+// React logs every error a boundary catches to the console by default. The
+// boundary records nothing, because an error can carry text from the image's
+// metadata, so the root records nothing either.
+createRoot(document.getElementById("root") as HTMLElement, {
+  onCaughtError: () => {},
+}).render(
   <StrictMode>
     <App />
   </StrictMode>,
