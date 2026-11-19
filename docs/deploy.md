@@ -58,7 +58,7 @@ That tests in Chromium. For every browser the app supports, as CI runs nightly, 
 pnpm exec hm-in-image env SMOKE_ENGINES=all playwright test
 ```
 
-To check a deployment instead of the local build, set `SMOKE_BASE_URL` to the app's address, the same way. No build or server is needed then. If the deployment has an analytics key, its events are answered in the browser by the test and never reach the provider.
+To check a deployment instead of the local build, set `SMOKE_BASE_URL` to the app's address, the same way. No build or server is needed then. If the deployment has an analytics key, its events are answered in the browser by the test and never reach the provider; add `SMOKE_ANALYTICS=on` so the test expects the analytics host in the app's policy, which it can't see from here.
 
 ```sh
 pnpm exec hm-in-image env SMOKE_BASE_URL=https://<the app's address> playwright test
