@@ -8,6 +8,7 @@ import {
   type Page,
   type PlaywrightTestConfig,
 } from "@playwright/test";
+import { loadEnv } from "vite";
 
 /**
  * The smoke tests' shared setup (docs/adr/0003): every app's tests run
@@ -105,6 +106,14 @@ export const test = base.extend<SmokeTestOptions & { problems: Problems }>({
         throw new Error(`analyticsOrigins includes the app's own origin, ${own}.`);
       }
       if (analytics.size > 0) {
+        // PostHog drops events from a browser that looks automated, by its
+        // user agent, its client hints or navigator.webdriver. Present the
+        // page as a person's browser, so a test can see the app's page view:
+        // the requests are answered below, so no real analytics are counted.
+        await page.addInitScript(() => {
+          Object.defineProperty(Navigator.prototype, "webdriver", { get: () => false });
+          Object.defineProperty(Navigator.prototype, "userAgentData", { get: () => undefined });
+        });
         await page.context().route(
           (url) => analytics.has(url.origin),
           (route) => route.fulfill({ status: 204 }),
@@ -185,4 +194,67 @@ export function expectSdkAssets(problems: Problems, page: Page, packageName: str
   const assets = problems.requests.filter((url) => url.includes(`/${name}/`));
   expect(assets.length, `requests for ${packageName}'s assets`).toBeGreaterThan(0);
   for (const asset of assets) expect(asset.startsWith(base), asset).toBe(true);
+}
+
+/**
+ * The analytics origin the app under test allows, or `undefined` for a
+ * build without a key (docs/adr/0005). For the local build, it's read from
+ * the same variables Vite builds with, in the app's folder. A deployment's
+ * build variables aren't visible from here, so whoever tests one says it
+ * has a key with `SMOKE_ANALYTICS=on` (and `VITE_POSTHOG_HOST` for another
+ * host).
+ *
+ * @param defaultHost - The app's default PostHog host.
+ */
+export function analyticsOriginUnderTest(defaultHost: string): string | undefined {
+  const env = process.env.SMOKE_BASE_URL
+    ? {
+        VITE_POSTHOG_KEY: process.env.SMOKE_ANALYTICS === "on" ? "set" : "",
+        VITE_POSTHOG_HOST: process.env.VITE_POSTHOG_HOST,
+      }
+    : loadEnv("production", process.cwd(), "VITE_");
+  if (!env.VITE_POSTHOG_KEY) return undefined;
+  return new URL(env.VITE_POSTHOG_HOST || defaultHost).origin;
+}
+
+/**
+ * Checks the sources one directive of the app's Content Security Policy
+ * allows, apart from quoted keywords such as `'self'`: they must be exactly
+ * `origins`, in any order. Anything else, such as `*`, an `http:` origin or
+ * a bare host, fails, so the policy can't quietly allow more than the app's
+ * configuration says.
+ */
+export function expectPolicyOrigins(
+  headers: Record<string, string>,
+  directive: string,
+  origins: readonly string[],
+): void {
+  const policy = headers["content-security-policy"] ?? "";
+  const sources = policy
+    .split(";")
+    .map((part) => part.trim().split(/\s+/))
+    .find(([name]) => name === directive);
+  expect(sources, `the policy's ${directive}`).toBeDefined();
+  const named = (sources ?? []).slice(1).filter((source) => !/^'[a-z-]+'$/.test(source));
+  expect([...named].sort(), `the sources in ${directive}`).toEqual([...origins].sort());
+}
+
+/**
+ * With analytics on, checks that the app sent at least its page view to
+ * the analytics origin, which the fixture answered in the browser. Without
+ * analytics there's nothing to check here: the fixture already fails on any
+ * request to another origin.
+ *
+ * @param origin - From {@link analyticsOriginUnderTest}.
+ */
+export async function expectAnalytics(
+  problems: Problems,
+  origin: string | undefined,
+): Promise<void> {
+  if (!origin) return;
+  await expect
+    .poll(() => problems.requests.some((url) => url.startsWith(`${origin}/`)), {
+      message: `a request to ${origin}`,
+    })
+    .toBe(true);
 }

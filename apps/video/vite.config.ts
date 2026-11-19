@@ -1,17 +1,27 @@
-import { editorApp, sdkPackageAssets, themeStylesheet } from "@editor-apps/build-config/vite";
+import {
+  editorApp,
+  posthogPolicy,
+  sdkPackageAssets,
+  themeStylesheet,
+} from "@editor-apps/build-config/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { appConfig } from "./src/app.config.ts";
 import { themeCss } from "./src/theme.ts";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     // The SDK's workers come from the app's own origin. The editor shows
     // frames and plays media it holds in the page, as blob: and data: URLs.
     editorApp({
       canonicalUrl: appConfig.url,
-      policy: { inlineImages: true, inlineMedia: true },
+      policy: {
+        inlineImages: true,
+        inlineMedia: true,
+        // PostHog's host in connect-src only when the build has a key (docs/adr/0005).
+        analytics: posthogPolicy(mode, import.meta.dirname, appConfig.analyticsHost),
+      },
       sdkAssets: sdkPackageAssets("@hussmartinez/video-sdk", import.meta.url),
     }),
     themeStylesheet(themeCss()),
@@ -27,4 +37,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

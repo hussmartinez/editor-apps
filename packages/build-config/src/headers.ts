@@ -17,12 +17,14 @@ export interface PolicyOptions {
    * The origins of the app's analytics provider, and nothing else
    * (docs/adr/0005). Leave it out for no analytics.
    */
-  readonly analytics?: {
-    /** Where events are sent: added to `connect-src`. */
-    readonly connect?: readonly string[];
-    /** Where the provider's script comes from, if it isn't bundled: added to `script-src`. */
-    readonly script?: readonly string[];
-  };
+  readonly analytics?:
+    | {
+        /** Where events are sent: added to `connect-src`. */
+        readonly connect?: readonly string[];
+        /** Where the provider's script comes from, if it isn't bundled: added to `script-src`. */
+        readonly script?: readonly string[];
+      }
+    | undefined;
   /** The origin of the ad frame: the only `frame-src` (docs/adr/0006). */
   readonly adFrame?: string;
 }

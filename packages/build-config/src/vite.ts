@@ -1,8 +1,8 @@
 import { cpSync, existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
-import type { Plugin } from "vite";
-import { headersFile, type PolicyOptions, securityHeaders } from "./headers.ts";
+import { loadEnv, type Plugin } from "vite";
+import { headersFile, httpsOrigin, type PolicyOptions, securityHeaders } from "./headers.ts";
 
 /**
  * What an app tells the build about itself. Everything else is the same in
@@ -141,4 +141,24 @@ export function themeStylesheet(css: string): Plugin {
     resolveId: (source) => (source === id ? `\0${id}` : undefined),
     load: (resolved) => (resolved === `\0${id}` ? css : undefined),
   };
+}
+
+/**
+ * The analytics policy for a build (docs/adr/0005): PostHog's host in
+ * `connect-src` when the build has `VITE_POSTHOG_KEY`, from the same
+ * variables the app reads, and nothing without one. `VITE_POSTHOG_HOST`
+ * overrides the default host, and must be an https origin.
+ *
+ * @param mode - Vite's mode.
+ * @param root - The app's folder, where its `.env` files would be.
+ * @param defaultHost - The app's default PostHog host.
+ */
+export function posthogPolicy(
+  mode: string,
+  root: string,
+  defaultHost: string,
+): PolicyOptions["analytics"] {
+  const env = loadEnv(mode, root, "VITE_");
+  if (!env.VITE_POSTHOG_KEY) return undefined;
+  return { connect: [httpsOrigin(new URL(env.VITE_POSTHOG_HOST || defaultHost).origin)] };
 }

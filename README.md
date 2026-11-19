@@ -12,6 +12,7 @@ Each app is a thin shell around an editor SDK of the [`@hussmartinez`](https://w
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `apps/<app>/`            | One app each: `pdf`, `audio`, `image` and `video`, arriving one pull request at a time                                                               |
 | `packages/build-config/` | Build and test helpers: the response headers and Content Security Policy, the Vite plugin, and the repository's own checks. Private, never published |
+| `packages/analytics/`    | Anonymous analytics through PostHog, shared by the four apps: a page view per load and the SDKs' events. Private, never published                    |
 | `packages/app-shell/`    | Planned: the page around every editor                                                                                                                |
 | `docs/adr/`              | The decisions behind the repository                                                                                                                  |
 | `docs/deploy.md`         | How the apps deploy, and the settings that live outside the repository                                                                               |

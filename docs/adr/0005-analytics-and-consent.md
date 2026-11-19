@@ -72,3 +72,11 @@ A pull request that touches the adapter, a provider's options, the policy builde
 - **Cloudflare Web Analytics gives page views only.** An app that needs the SDK's events uses PostHog.
 - **The legal reading of "no consent needed" is the owner's to confirm** for the countries served. The design makes the conservative choice easy: switch the banner on, or the provider off.
 - **A provider's upgrade is a privacy change,** reviewed as one.
+
+## Amendments
+
+- **2026-11-19: PostHog serves every app,** by Huss's decision, through one PostHog project, with each event tagged `app` (`pdf`, `audio`, `image` or `video`). Cloudflare Web Analytics was considered and set aside: its beacon is a third-party script the apps would have to allow in `script-src`, where PostHog's client is bundled and served from each app's own origin, so `script-src` stays `'self'` and only `connect-src` opens, to PostHog's host. Cloudflare's automatic injection of its beacon is excluded for the apps' hosts in Cloudflare's dashboard, which is Huss's step.
+  - **The adapter is `packages/analytics`** until `packages/app-shell` exists, which will take it in. It keeps the pdf app's locked-down options and its tested retry, adds `person_profiles: "never"`, drops referrers and campaign parameters, and strips every address to its path before anything is sent.
+  - **Each app sends one page view per load,** explicitly, with the path only, because automatic page views stay off, **and its SDK's anonymous events,** from the editor's `onEvent`. All four SDKs have that hook. The pdf app also sends `component_error`, with no message, when its error boundary catches a crash.
+  - **Without `VITE_POSTHOG_KEY`, nothing loads,** and `connect-src` stays `'self'`. The key is the same public key for every app, set in Workers Builds.
+  - **Global Privacy Control and Do Not Track** switch it off before anything loads, as this record already said.

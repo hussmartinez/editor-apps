@@ -10,14 +10,13 @@
     "typecheck": "tsc --noEmit",
     "preview": "vite preview --host 127.0.0.1",
     "test:e2e": "hm-in-image playwright test",
-    "deploy": "wrangler deploy",
-    "test": "vitest run src"
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
+    "@editor-apps/analytics": "workspace:*",
     "@hussmartinez/pdf-sdk": "0.4.0",
     "@hussmartinez/sdk-core": "0.4.4",
     "@hussmartinez/ui": "0.8.0",
-    "posthog-js": "1.442.1",
     "react": "catalog:",
     "react-dom": "catalog:"
   },
@@ -31,7 +30,6 @@
     "@vitejs/plugin-react": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:",
     "wrangler": "catalog:"
   }
 }

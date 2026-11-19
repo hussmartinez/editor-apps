@@ -226,6 +226,9 @@ importers:
 
   apps/audio:
     dependencies:
+      '@editor-apps/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@hussmartinez/audio-sdk':
         specifier: 0.5.0
         version: 0.5.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -275,6 +278,9 @@ importers:
 
   apps/image:
     dependencies:
+      '@editor-apps/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@hussmartinez/image-sdk':
         specifier: 0.6.0
         version: 0.6.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -324,6 +330,9 @@ importers:
 
   apps/pdf:
     dependencies:
+      '@editor-apps/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@hussmartinez/pdf-sdk':
         specifier: 0.4.0
         version: 0.4.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -333,9 +342,6 @@ importers:
       '@hussmartinez/ui':
         specifier: 0.8.0
         version: 0.8.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      posthog-js:
-        specifier: 1.442.1
-        version: 1.442.1(@types/react@19.3.0)(react@19.3.1)
       react:
         specifier: 'catalog:'
         version: 19.3.1
@@ -370,15 +376,15 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1)
-      vitest:
-        specifier: 'catalog:'
-        version: 5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1))
       wrangler:
         specifier: 'catalog:'
         version: 4.163.0(@types/node@24.19.2)
 
   apps/video:
     dependencies:
+      '@editor-apps/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@hussmartinez/sdk-core':
         specifier: 0.4.4
         version: 0.4.4
@@ -425,6 +431,19 @@ importers:
       wrangler:
         specifier: 'catalog:'
         version: 4.163.0(@types/node@24.19.2)
+
+  packages/analytics:
+    dependencies:
+      posthog-js:
+        specifier: 1.442.1
+        version: 1.442.1(@types/react@19.3.0)(react@19.3.1)
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/build-config:
     dependencies:

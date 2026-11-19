@@ -2,9 +2,9 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { build, createServer, preview } from "vite";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { contentSecurityPolicy } from "./headers.ts";
-import { editorApp } from "./vite.ts";
+import { editorApp, posthogPolicy } from "./vite.ts";
 
 let root: string;
 
@@ -119,5 +119,42 @@ describe("editorApp", () => {
     for (const url of ["sdk/", "/sdk", "/sdk/../", "/sdk/*/", "https://cdn.example/sdk/"]) {
       expect(() => editorApp({ sdkAssets: { from: ".", url } })).toThrow(TypeError);
     }
+  });
+});
+
+describe("posthogPolicy", () => {
+  afterEach(() => vi.unstubAllEnvs());
+  const empty = () => mkdtempSync(path.join(tmpdir(), "posthog-env-"));
+
+  it("allows nothing without a key", () => {
+    vi.stubEnv("VITE_POSTHOG_KEY", "");
+    expect(posthogPolicy("production", empty(), "https://ph.example")).toBeUndefined();
+  });
+
+  it("allows the default host's origin with a key", () => {
+    vi.stubEnv("VITE_POSTHOG_KEY", "phc_test");
+    vi.stubEnv("VITE_POSTHOG_HOST", "");
+    expect(posthogPolicy("production", empty(), "https://ph.example/")).toEqual({
+      connect: ["https://ph.example"],
+    });
+  });
+
+  it("follows VITE_POSTHOG_HOST, and refuses one that isn't https", () => {
+    vi.stubEnv("VITE_POSTHOG_KEY", "phc_test");
+    vi.stubEnv("VITE_POSTHOG_HOST", "https://eu.ph.example");
+    expect(posthogPolicy("production", empty(), "https://ph.example")).toEqual({
+      connect: ["https://eu.ph.example"],
+    });
+    vi.stubEnv("VITE_POSTHOG_HOST", "http://ph.example");
+    expect(() => posthogPolicy("production", empty(), "https://ph.example")).toThrow(TypeError);
+  });
+
+  it("reads a key from the app's .env file, as the build does", () => {
+    vi.stubEnv("VITE_POSTHOG_KEY", undefined);
+    const dir = empty();
+    writeFileSync(path.join(dir, ".env.production"), "VITE_POSTHOG_KEY=phc_file\n");
+    expect(posthogPolicy("production", dir, "https://ph.example")).toEqual({
+      connect: ["https://ph.example"],
+    });
   });
 });

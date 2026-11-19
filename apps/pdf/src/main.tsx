@@ -5,7 +5,7 @@ import "@hussmartinez/ui/styles.css";
 import "@hussmartinez/pdf-sdk/styles.css";
 import "virtual:theme.css";
 import "./styles.css";
-import { trackEditorEvent } from "./analytics";
+import { analytics } from "./analytics.ts";
 import { ErrorBoundary } from "./error-boundary";
 
 /** The limits the app had before the SDK: warn at 100 MB, refuse over 300 MB. */
@@ -52,13 +52,15 @@ function App() {
             assetsUrl={__SDK_ASSETS_URL__}
             filePolicy={FILE_POLICY}
             onChange={handleChange}
-            onEvent={trackEditorEvent}
+            onEvent={analytics.editorEvent}
           />
         </ErrorBoundary>
       </main>
     </div>
   );
 }
+
+analytics.pageView();
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Missing #root element.");
