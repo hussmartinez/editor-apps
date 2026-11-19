@@ -95,3 +95,4 @@ The domain the apps are served from is configuration, not identity.
 ## Amendments
 
 - **2026-11-18, with the scaffold:** the single-copy check is named as the repository's own, `pnpm check:single-copy`. `hm-check-single-copy` checks a whole lockfile, and can't allow apps to differ from each other.
+- **2026-11-19:** the repository moved from the owner's account to the `ie-huss-martinez` organisation, as `ie-huss-martinez/editor-apps`, beside the SDKs. Its name and everything in it stay the same; GitHub redirects the old address.
