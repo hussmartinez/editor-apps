@@ -33,15 +33,15 @@ This repository is public ([ADR 0001](0001-one-repository-and-its-layout.md)), s
 
 GitHub Actions never deploys. Each app has its own Worker, connected to this repository in Cloudflare's Workers Builds, with the same settings apart from the app's name:
 
-| Setting                      | Value                                                                          |
-| ---------------------------- | ------------------------------------------------------------------------------ |
-| Root directory               | `/`                                                                            |
-| Build command                | `pnpm --filter <app> build`                                                    |
-| Deploy command               | `pnpm --filter <app> run deploy`                                               |
-| Build watch paths            | `apps/<app>/**`, `packages/**`, `pnpm-workspace.yaml`, the root `package.json` |
-| Production branch            | `main`                                                                         |
-| Non-production branch builds | off                                                                            |
-| Build variables              | none, or the app's analytics key ([ADR 0005](0005-analytics-and-consent.md))   |
+| Setting                      | Value                                                                        |
+| ---------------------------- | ---------------------------------------------------------------------------- |
+| Root directory               | `/`                                                                          |
+| Build command                | `pnpm --filter @editor-apps/<app> run build`                                 |
+| Deploy command               | `pnpm --filter @editor-apps/<app> run deploy`                                |
+| Build watch paths            | `apps/<app>/*`, `packages/*`, `pnpm-workspace.yaml`, the root `package.json` |
+| Production branch            | `main`                                                                       |
+| Non-production branch builds | off                                                                          |
+| Build variables              | none, or the app's analytics key ([ADR 0005](0005-analytics-and-consent.md)) |
 
 - **An app's `deploy` script only deploys,** with the wrangler version pinned in the catalog. It never builds: Workers Builds has just built.
 - **The repository carries everything that differs:** the Worker's name and its route are in the app's `wrangler.jsonc`. `docs/deploy.md` holds this table and the manual fallback.
@@ -53,13 +53,13 @@ GitHub Actions never deploys. Each app has its own Worker, connected to this rep
 
 An upgrade of one app's SDK must test and redeploy that app, and no other. Paths are enough to tell, with no reading of the lockfile's graph, because every app pins its SDK exactly: an upgrade always changes that app's own `package.json`.
 
-| A change to                                                                | CI builds and tests                          | Workers Builds redeploys |
-| -------------------------------------------------------------------------- | -------------------------------------------- | ------------------------ |
-| `apps/<app>/**`                                                            | that app                                     | that app                 |
-| `packages/**`, `pnpm-workspace.yaml`, the root `package.json`              | every app                                    | every app                |
-| `biome.json`, `tsconfig.base.json`, `ci/**`, `.github/**`, `.node-version` | every app                                    | none                     |
-| `pnpm-lock.yaml` alone                                                     | every app                                    | none                     |
-| Documentation alone                                                        | none: the checks without a browser still run | none                     |
+| A change to                                                              | CI builds and tests                          | Workers Builds redeploys |
+| ------------------------------------------------------------------------ | -------------------------------------------- | ------------------------ |
+| `apps/<app>/*`                                                           | that app                                     | that app                 |
+| `packages/*`, `pnpm-workspace.yaml`, the root `package.json`             | every app                                    | every app                |
+| `biome.json`, `tsconfig.base.json`, `ci/*`, `.github/*`, `.node-version` | every app                                    | none                     |
+| `pnpm-lock.yaml` alone                                                   | every app                                    | none                     |
+| Documentation alone                                                      | none: the checks without a browser still run | none                     |
 
 - **A lockfile-only change is a transitive update.** It's rare, so CI tests every app rather than work out which ones it reaches. Its merge redeploys nothing by itself: the reviewer starts the builds of the apps it affects, in Workers Builds.
 - **One script decides, `affected-apps` in `build-config`,** with a test that an upgrade of one app's SDK selects only that app. It uses Node and git alone, so CI runs it before installing anything.
@@ -97,3 +97,4 @@ How much review a pull request gets depends on what it can break.
 ## Amendments
 
 - **2026-11-18, with the scaffold:** the section "Which apps a change affects" was added, with the decision against a build orchestrator. The watch paths no longer include `pnpm-lock.yaml`, so that an SDK upgrade redeploys one app and a transitive update is redeployed by hand. The single-copy check is the repository's own, per app, because `hm-check-single-copy` checks a whole lockfile and the apps may differ from each other ([ADR 0001](0001-one-repository-and-its-layout.md)). Dependabot's one pull request per package is spelled out.
+- **2026-11-19:** watch paths are written with `*`, as Cloudflare documents them, not `**`, and the commands name the apps' packages, as `docs/deploy.md` does. The repository moved to the `ie-huss-martinez` organisation; the Workers Builds connections point there.

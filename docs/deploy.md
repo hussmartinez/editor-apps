@@ -8,10 +8,11 @@ Every app's Worker is connected to this repository with the same settings. Only 
 
 | Setting                      | Value                                                                            |
 | ---------------------------- | -------------------------------------------------------------------------------- |
+| Git repository               | `ie-huss-martinez/editor-apps`                                                   |
 | Root directory               | `/`                                                                              |
 | Build command                | `pnpm --filter @editor-apps/<app> run build`                                     |
 | Deploy command               | `pnpm --filter @editor-apps/<app> run deploy`                                    |
-| Build watch paths            | `apps/<app>/**`, `packages/**`, `pnpm-workspace.yaml`, `package.json`            |
+| Build watch paths            | `apps/<app>/*`, `packages/*`, `pnpm-workspace.yaml`, `package.json`              |
 | Production branch            | `main`                                                                           |
 | Non-production branch builds | off                                                                              |
 | Build variables              | none, or the app's analytics key ([ADR 0005](adr/0005-analytics-and-consent.md)) |
@@ -19,16 +20,17 @@ Every app's Worker is connected to this repository with the same settings. Only 
 - **The Worker's name in the dashboard is the `name` in the app's `wrangler.jsonc`,** such as `pdf-editor`. It isn't the folder's name.
 - **Node and pnpm need no variables.** The build image reads Node 24 from `.node-version` and pnpm from `packageManager` in `package.json`, and installs the locked dependencies before the build command.
 - **An app's `deploy` script only deploys,** with the wrangler version pinned in the pnpm catalog. Workers Builds has just built.
+- **Watch paths use `*`, not `**`.** Cloudflare's watch paths take `*` at the start or end of a rule, matching any characters, slashes included; `**` isn't documented. `package.json` and `pnpm-workspace.yaml` are static paths from the repository's root, so they match only the root files.
 - **The app's route is in its `wrangler.jsonc`.** The domain appears there and in the app's `src/app.config.ts`, and nowhere else ([ADR 0001](adr/0001-one-repository-and-its-layout.md)).
 
 ## What redeploys
 
-| A merge that changes                                            | Redeploys |
-| --------------------------------------------------------------- | --------- |
-| `apps/<app>/**`, which includes an upgrade of the app's SDK     | that app  |
-| `packages/**`, `pnpm-workspace.yaml` or the root `package.json` | every app |
-| `pnpm-lock.yaml` alone                                          | nothing   |
-| Documentation, CI or tooling configuration                      | nothing   |
+| A merge that changes                                           | Redeploys |
+| -------------------------------------------------------------- | --------- |
+| `apps/<app>/*`, which includes an upgrade of the app's SDK     | that app  |
+| `packages/*`, `pnpm-workspace.yaml` or the root `package.json` | every app |
+| `pnpm-lock.yaml` alone                                         | nothing   |
+| Documentation, CI or tooling configuration                     | nothing   |
 
 **A lockfile-only merge deploys nothing by itself.** It's a transitive update: CI has tested every app with it, and the reviewer starts a build of each app in the Workers Builds dashboard, so production runs what `main` locks.
 
