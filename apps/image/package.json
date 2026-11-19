@@ -14,9 +14,9 @@
   },
   "dependencies": {
     "@editor-apps/analytics": "workspace:*",
-    "@hussmartinez/image-sdk": "0.6.0",
+    "@hussmartinez/image-sdk": "0.9.0",
     "@hussmartinez/sdk-core": "0.4.4",
-    "@hussmartinez/ui": "0.10.0",
+    "@hussmartinez/ui": "0.15.0",
     "react": "catalog:",
     "react-dom": "catalog:"
   },
