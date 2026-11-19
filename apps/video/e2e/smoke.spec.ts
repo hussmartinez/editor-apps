@@ -1,5 +1,11 @@
 import { readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import { expect, expectSecurityHeaders, test } from "@editor-apps/build-config/playwright";
+
+/** The installed SDK's version, which names the path its workers must load from. */
+const { version: sdkVersion } = createRequire(import.meta.url)(
+  "@hussmartinez/video-sdk/package.json",
+) as { version: string };
 
 /** One second of a test pattern and a tone, from FFmpeg's synthetic sources (make-fixture.sh). */
 const fixture = new URL("./fixtures/clip.webm", import.meta.url);
@@ -44,16 +50,33 @@ test("a video opens and exports as a video file, with the SDK's workers from thi
   await download.click();
   const video = await readFile(await (await saving).path());
 
-  // A WebM file starts with the EBML magic number; an MP4 file has "ftyp" in its first box.
+  // A WebM or MP4 file, with a video track. Only the type is checked: the
+  // frames are video-sdk's to test.
   const webm = video.subarray(0, 4).equals(Buffer.from([0x1a, 0x45, 0xdf, 0xa3]));
   const mp4 = video.toString("ascii", 4, 8) === "ftyp";
   expect(webm || mp4, "a WebM or MP4 file").toBe(true);
+  expect(hasVideoTrack(video), "a video track").toBe(true);
   expect(video.byteLength).toBeGreaterThan(1_000);
 
-  const origin = new URL(page.url()).origin;
+  // Every worker comes from this origin, under the installed SDK's version.
+  const assets = `${new URL(page.url()).origin}/video-sdk/${sdkVersion}/video/`;
   const workers = problems.requests.filter((url) => url.endsWith(".worker.js"));
   expect(workers.length).toBeGreaterThan(0);
-  for (const worker of workers) {
-    expect(worker).toMatch(new RegExp(`^${origin}/video-sdk/[\\d.]+/video/[\\w.]+\\.worker\\.js$`));
-  }
+  for (const worker of workers) expect(worker.startsWith(assets), worker).toBe(true);
 });
+
+/**
+ * Whether a WebM or MP4 file declares a video track: WebM names its codec
+ * with a codec ID such as `V_VP8`, and MP4's track handler is `vide`, eight
+ * bytes after the `hdlr` box's type. Whole names, so a stray pair of bytes
+ * in compressed data can't pass for one.
+ */
+function hasVideoTrack(file: Buffer): boolean {
+  if (["V_VP8", "V_VP9", "V_AV1", "V_MPEG4/ISO/AVC"].some((codec) => file.includes(codec))) {
+    return true;
+  }
+  for (let at = file.indexOf("hdlr"); at !== -1; at = file.indexOf("hdlr", at + 1)) {
+    if (file.toString("ascii", at + 12, at + 16) === "vide") return true;
+  }
+  return false;
+}
