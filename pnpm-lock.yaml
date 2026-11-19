@@ -334,14 +334,14 @@ importers:
         specifier: workspace:*
         version: link:../../packages/analytics
       '@hussmartinez/pdf-sdk':
-        specifier: 0.4.0
-        version: 0.4.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.4.2
+        version: 0.4.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@hussmartinez/sdk-core':
         specifier: 0.4.4
         version: 0.4.4
       '@hussmartinez/ui':
-        specifier: 0.8.0
-        version: 0.8.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.11.0
+        version: 0.11.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react:
         specifier: 'catalog:'
         version: 19.3.1
@@ -789,8 +789,8 @@ packages:
       react-dom:
         optional: true
 
-  '@hussmartinez/pdf-sdk@0.4.0':
-    resolution: {integrity: sha512-z1F21BFv0M7R5aWMM9SVU+l1OvrkwYZ5ylIFUjW36bQ+Ljhfx7P0O1HF1WDA9NgSf8Hjk19LEW015JmZm47moQ==}
+  '@hussmartinez/pdf-sdk@0.4.2':
+    resolution: {integrity: sha512-85FguoEHtYB/x2ZxEKzI1hMEVRKWxP8ERUxIy3+44UdAKL4WqpqSb58XhOccqq67wV2UhZ1bZNPl/pqBOmBvVw==}
     engines: {node: '>=24'}
     peerDependencies:
       react: '>=18.3'
@@ -858,8 +858,8 @@ packages:
       react-dom:
         optional: true
 
-  '@hussmartinez/ui@0.7.0':
-    resolution: {integrity: sha512-GsWxaQJXR0e/KFZ8glsD3Ou9MJTk0WUfJ7eayWaby3XNS4geHaYLIzaAuCiVsJAH+GnG5t7G6ddv2/zFybfdRQ==}
+  '@hussmartinez/ui@0.11.0':
+    resolution: {integrity: sha512-jkEbKqbb5D+aMi3eOv985ERjcNxoJTSS8pdZPK4i39kcvCHmj2Etso8sPuXZnZwgCfKHtfXe9d7aKcsxZYxdUg==}
     peerDependencies:
       react: '>=18.3'
       react-dom: '>=18.3'
@@ -869,8 +869,8 @@ packages:
       react-dom:
         optional: true
 
-  '@hussmartinez/ui@0.8.0':
-    resolution: {integrity: sha512-T0acTvSoRlokWTRWsC0W3Gq/kKFMVgpSzM/fnPBLLZokJn2bAT1peFnLFo1khCqv7dWYWc1jDIAJHrnnKClL0A==}
+  '@hussmartinez/ui@0.7.0':
+    resolution: {integrity: sha512-GsWxaQJXR0e/KFZ8glsD3Ou9MJTk0WUfJ7eayWaby3XNS4geHaYLIzaAuCiVsJAH+GnG5t7G6ddv2/zFybfdRQ==}
     peerDependencies:
       react: '>=18.3'
       react-dom: '>=18.3'
@@ -1913,10 +1913,10 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
-  '@hussmartinez/pdf-sdk@0.4.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@hussmartinez/pdf-sdk@0.4.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@hussmartinez/sdk-core': 0.4.4
-      '@hussmartinez/ui': 0.8.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@hussmartinez/ui': 0.11.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
     optionalDependencies:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
@@ -1943,14 +1943,14 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
-  '@hussmartinez/ui@0.7.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@hussmartinez/ui@0.11.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@hussmartinez/sdk-core': 0.4.4
     optionalDependencies:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
-  '@hussmartinez/ui@0.8.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@hussmartinez/ui@0.7.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@hussmartinez/sdk-core': 0.4.4
     optionalDependencies:
