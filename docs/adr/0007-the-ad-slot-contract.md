@@ -14,7 +14,12 @@ Huss approved a placeholder in the slot until then: original art for each app, l
 
 ## Decision
 
-This record supersedes one point of ADR 0006: until ads start, the slot shows a placeholder rather than nothing. Everything else in ADR 0006 stands.
+This record supersedes two points of ADR 0006, both about the slot's size:
+
+- **Until ads start,** the slot shows a placeholder rather than nothing.
+- **An empty slot keeps its size.** The frame's "no ad" message brings back the placeholder instead of collapsing the slot. The message itself, and the shell's checks of its origin and shape, stay as ADR 0006 has them.
+
+Everything else in ADR 0006 stands.
 
 ### The slot
 
@@ -40,7 +45,7 @@ These follow from ADR 0006, and are what the slot's contract promises the ad fra
 - **A `title` of "Advertisement"** on the frame, and the slot is no longer `aria-hidden`. A real ad is content, and is labelled as one.
 - **`loading="lazy"`,** and **no frame at all without consent** where consent is required.
 - **The editor's policy gains one `frame-src`** with the frame's origin, through build-config's `adFrame` option, which exists already.
-- **An empty slot stays the same size.** If the frame reports "no ad", the slot shows the placeholder again rather than collapsing, so the layout never moves.
+- **An empty slot stays the same size.** If the frame reports "no ad", the slot shows the placeholder again rather than collapsing, so the layout never moves. This replaces ADR 0006's collapse.
 
 ## Alternatives considered
 
