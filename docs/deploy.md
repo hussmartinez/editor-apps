@@ -6,16 +6,16 @@ Each app is a Cloudflare Worker that serves static assets. Cloudflare's [Workers
 
 Every app's Worker is connected to this repository with the same settings. Only `<app>` differs: the app's folder under `apps/`, such as `pdf`.
 
-| Setting                      | Value                                                                            |
-| ---------------------------- | -------------------------------------------------------------------------------- |
-| Git repository               | `ie-huss-martinez/editor-apps`                                                   |
-| Root directory               | `/`                                                                              |
-| Build command                | `pnpm --filter @editor-apps/<app> run build`                                     |
-| Deploy command               | `pnpm --filter @editor-apps/<app> run deploy`                                    |
-| Build watch paths            | `apps/<app>/*`, `packages/*`, `pnpm-workspace.yaml`, `package.json`              |
-| Production branch            | `main`                                                                           |
-| Non-production branch builds | off                                                                              |
-| Build variables              | none, or the app's analytics key ([ADR 0005](adr/0005-analytics-and-consent.md)) |
+| Setting                      | Value                                                                                                                    |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Git repository               | `ie-huss-martinez/editor-apps`                                                                                           |
+| Root directory               | `/`                                                                                                                      |
+| Build command                | `pnpm --filter @editor-apps/<app> run build`                                                                             |
+| Deploy command               | `pnpm --filter @editor-apps/<app> run deploy`                                                                            |
+| Build watch paths            | `apps/<app>/*`, `packages/*`, `pnpm-workspace.yaml`, `package.json`                                                      |
+| Production branch            | `main`                                                                                                                   |
+| Non-production branch builds | off                                                                                                                      |
+| Build variables              | `VITE_POSTHOG_KEY`, PostHog's public project key, the same for every app ([ADR 0005](adr/0005-analytics-and-consent.md)) |
 
 - **The Worker's name in the dashboard is the `name` in the app's `wrangler.jsonc`,** such as `pdf-editor`. It isn't the folder's name.
 - **Node and pnpm need no variables.** The build image reads Node 24 from `.node-version` and pnpm from `packageManager` in `package.json`, and installs the locked dependencies before the build command.

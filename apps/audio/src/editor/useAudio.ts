@@ -9,6 +9,7 @@ import {
   createAudioSession,
 } from "@hussmartinez/audio-sdk";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { analytics } from "../analytics.ts";
 
 export interface Audio {
   readonly session: AudioSession;
@@ -29,7 +30,8 @@ export function useAudio(): Audio | undefined {
     const assets = { assetsUrl: __SDK_ASSETS_URL__ };
     const engine = createAudioEngine(assets);
     const processor = createAudioProcessor(assets);
-    const session = createAudioSession({ engine, processor });
+    // The session's anonymous events go to the app's analytics (docs/adr/0005).
+    const session = createAudioSession({ engine, processor, onEvent: analytics.editorEvent });
     const output = createAudioOutput();
     const disconnect = connectOutput(session, output);
     setAudio({ session, output });

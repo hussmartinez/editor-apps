@@ -1,6 +1,6 @@
 import { Button } from "@hussmartinez/ui/react";
 import { Component, type ReactNode } from "react";
-import { trackEvent } from "./analytics";
+import { analytics } from "./analytics.ts";
 
 type Props = { children: ReactNode };
 type State = { failed: boolean };
@@ -14,7 +14,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   override componentDidCatch(): void {
     // Only that it happened: an error's message may contain text from the file.
-    trackEvent("component_error");
+    analytics.event("component_error");
   }
 
   override render(): ReactNode {

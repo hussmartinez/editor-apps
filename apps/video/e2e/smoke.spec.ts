@@ -1,10 +1,14 @@
 import { readFile } from "node:fs/promises";
 import {
+  analyticsOriginUnderTest,
   expect,
+  expectAnalytics,
+  expectPolicyOrigins,
   expectSdkAssets,
   expectSecurityHeaders,
   test,
 } from "@editor-apps/build-config/playwright";
+import { appConfig } from "../src/app.config.ts";
 
 /** One second of a test pattern and a tone, from FFmpeg's synthetic sources (make-fixture.sh). */
 const fixture = new URL("./fixtures/clip.webm", import.meta.url);
@@ -12,12 +16,20 @@ const fixture = new URL("./fixtures/clip.webm", import.meta.url);
 // The `problems` fixture fails either test on a console error, a policy
 // violation, a failed response or a request to another origin.
 
+// With an analytics key, the app sends a page view and its SDK's events.
+// They're answered in the browser and never reach the provider.
+const analytics = analyticsOriginUnderTest(appConfig.analyticsHost);
+test.use({ analyticsOrigins: [analytics ?? appConfig.analyticsHost] });
+
 test("the page is served with its headers, and has the shell's landmarks", async ({ page }) => {
   const response = await page.goto("/");
   expect(response?.status()).toBe(200);
   const headers = response?.headers() ?? {};
   expectSecurityHeaders(headers);
   expect(headers["content-security-policy"]).toContain("worker-src 'self'");
+  // Only the origins the app's configuration allows: PostHog's only with a key.
+  expectPolicyOrigins(headers, "script-src", []);
+  expectPolicyOrigins(headers, "connect-src", analytics ? [analytics] : []);
   expect(headers["content-security-policy"]).toContain("media-src 'self' blob:");
 
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
@@ -29,7 +41,8 @@ test("a video opens and exports as a video file, with the SDK's workers from thi
   page,
   problems,
 }) => {
-  await page.goto("/");
+  // A query and a fragment, which analytics must never send.
+  await page.goto("/?smoke=private#fragment");
 
   const chooser = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: "Choose files" }).click();
@@ -58,6 +71,7 @@ test("a video opens and exports as a video file, with the SDK's workers from thi
   expect(video.byteLength).toBeGreaterThan(1_000);
 
   expectSdkAssets(problems, page, "@hussmartinez/video-sdk");
+  await expectAnalytics(problems, analytics, appConfig.app);
 });
 
 /**

@@ -5,7 +5,10 @@ import "./styles.css";
 import { ImageEditor } from "@hussmartinez/image-sdk/react";
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { analytics } from "./analytics.ts";
 import { ErrorBoundary } from "./ErrorBoundary";
+
+analytics.pageView();
 
 function App() {
   // A new key remounts the editor, which recreates the SDK's engine, processor and session.
@@ -36,6 +39,7 @@ function App() {
             className="app-editor"
             assetsUrl={__SDK_ASSETS_URL__}
             onChange={() => setHasImage(true)}
+            onEvent={analytics.editorEvent}
           />
         </ErrorBoundary>
       </main>

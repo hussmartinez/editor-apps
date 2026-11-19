@@ -1,5 +1,6 @@
 import { createRequire } from "node:module";
 import path from "node:path";
+import { gunzipSync } from "node:zlib";
 import {
   test as base,
   defineConfig,
@@ -8,6 +9,7 @@ import {
   type Page,
   type PlaywrightTestConfig,
 } from "@playwright/test";
+import { loadEnv } from "vite";
 
 /**
  * The smoke tests' shared setup (docs/adr/0003): every app's tests run
@@ -72,6 +74,8 @@ export interface Problems {
   readonly foreign: string[];
   /** Every request's URL, for asserting where an asset came from. */
   readonly requests: string[];
+  /** The requests to the analytics origins, answered in the browser, with their bodies. */
+  readonly analytics: { readonly url: string; readonly body: Buffer | null }[];
 }
 
 /** Options an app sets with `test.use()`. */
@@ -97,7 +101,7 @@ export const test = base.extend<SmokeTestOptions & { problems: Problems }>({
   analyticsOrigins: [[], { option: true }],
   problems: [
     async ({ page, baseURL, analyticsOrigins }, use) => {
-      const problems: Problems = { errors: [], foreign: [], requests: [] };
+      const problems: Problems = { errors: [], foreign: [], requests: [], analytics: [] };
       const own = new URL(baseURL ?? "http://127.0.0.1").origin;
       const analytics = new Set(analyticsOrigins.map((origin) => new URL(origin).origin));
       // Answering the app's own origin would answer its pages too.
@@ -105,9 +109,21 @@ export const test = base.extend<SmokeTestOptions & { problems: Problems }>({
         throw new Error(`analyticsOrigins includes the app's own origin, ${own}.`);
       }
       if (analytics.size > 0) {
+        // PostHog drops events from a browser that looks automated, by its
+        // user agent, its client hints or navigator.webdriver. Present the
+        // page as a person's browser, so a test can see the app's page view:
+        // the requests are answered below, so no real analytics are counted.
+        await page.addInitScript(() => {
+          Object.defineProperty(Navigator.prototype, "webdriver", { get: () => false });
+          Object.defineProperty(Navigator.prototype, "userAgentData", { get: () => undefined });
+        });
         await page.context().route(
           (url) => analytics.has(url.origin),
-          (route) => route.fulfill({ status: 204 }),
+          (route) => {
+            const request = route.request();
+            problems.analytics.push({ url: request.url(), body: request.postDataBuffer() });
+            return route.fulfill({ status: 204 });
+          },
         );
       }
       page.on("console", (message) => {
@@ -185,4 +201,114 @@ export function expectSdkAssets(problems: Problems, page: Page, packageName: str
   const assets = problems.requests.filter((url) => url.includes(`/${name}/`));
   expect(assets.length, `requests for ${packageName}'s assets`).toBeGreaterThan(0);
   for (const asset of assets) expect(asset.startsWith(base), asset).toBe(true);
+}
+
+/**
+ * The analytics origin the app under test allows, or `undefined` for a
+ * build without a key (docs/adr/0005). For the local build, it's read from
+ * the same variables Vite builds with, in the app's folder. A deployment's
+ * build variables aren't visible from here, so whoever tests one says it
+ * has a key with `SMOKE_ANALYTICS=on` (and `VITE_POSTHOG_HOST` for another
+ * host).
+ *
+ * @param defaultHost - The app's default PostHog host.
+ */
+export function analyticsOriginUnderTest(defaultHost: string): string | undefined {
+  const env = process.env.SMOKE_BASE_URL
+    ? {
+        VITE_POSTHOG_KEY: process.env.SMOKE_ANALYTICS === "on" ? "set" : "",
+        VITE_POSTHOG_HOST: process.env.VITE_POSTHOG_HOST,
+      }
+    : loadEnv("production", process.cwd(), "VITE_");
+  if (!env.VITE_POSTHOG_KEY) return undefined;
+  return new URL(env.VITE_POSTHOG_HOST || defaultHost).origin;
+}
+
+/**
+ * Checks the sources one directive of the app's Content Security Policy
+ * allows, apart from quoted keywords such as `'self'`: they must be exactly
+ * `origins`, in any order. Anything else, such as `*`, an `http:` origin or
+ * a bare host, fails, so the policy can't quietly allow more than the app's
+ * configuration says.
+ */
+export function expectPolicyOrigins(
+  headers: Record<string, string>,
+  directive: string,
+  origins: readonly string[],
+): void {
+  const policy = headers["content-security-policy"] ?? "";
+  const sources = policy
+    .split(";")
+    .map((part) => part.trim().split(/\s+/))
+    .find(([name]) => name === directive);
+  expect(sources, `the policy's ${directive}`).toBeDefined();
+  const named = (sources ?? []).slice(1).filter((source) => !/^'[a-z-]+'$/.test(source));
+  expect([...named].sort(), `the sources in ${directive}`).toEqual([...origins].sort());
+}
+
+/** One analytics event, as PostHog's client sends it. */
+interface SentEvent {
+  readonly event: string;
+  readonly properties?: Record<string, unknown>;
+}
+
+/**
+ * The events in one request PostHog's client sent: JSON, possibly
+ * base64-encoded in a `data` form field, possibly gzipped, holding one
+ * event, a list, or a `batch`.
+ */
+export function sentEvents(body: Buffer | null): SentEvent[] {
+  if (!body || body.length === 0) return [];
+  let bytes = body;
+  if (bytes[0] === 0x1f && bytes[1] === 0x8b) bytes = gunzipSync(bytes);
+  let text = bytes.toString("utf8");
+  if (!/^\s*[[{]/.test(text)) {
+    const data = new URLSearchParams(text).get("data");
+    if (!data) return [];
+    const decoded = Buffer.from(data, "base64");
+    text = (decoded[0] === 0x1f && decoded[1] === 0x8b ? gunzipSync(decoded) : decoded).toString(
+      "utf8",
+    );
+  }
+  const parsed = JSON.parse(text) as SentEvent | SentEvent[] | { batch: SentEvent[] };
+  if (Array.isArray(parsed)) return parsed;
+  if ("batch" in parsed) return parsed.batch;
+  return [parsed];
+}
+
+/**
+ * Checks what the app sent to its analytics origin, which the fixture
+ * answered in the browser (docs/adr/0005).
+ *
+ * - **Without analytics,** nothing at all went there.
+ * - **With analytics,** exactly one page view, every event tagged with the
+ *   app's name, and no address with a query string or fragment. The page's
+ *   own SDK events may come too.
+ *
+ * Call it at the end of a test, after the app has had time to send its
+ * events: it waits for the page view.
+ *
+ * @param origin - From {@link analyticsOriginUnderTest}.
+ * @param app - The app's name, as its configuration gives it.
+ */
+export async function expectAnalytics(
+  problems: Problems,
+  origin: string | undefined,
+  app: string,
+): Promise<void> {
+  if (!origin) {
+    expect(problems.analytics, "requests to the analytics origin without a key").toEqual([]);
+    return;
+  }
+  const events = () => problems.analytics.flatMap(({ body }) => sentEvents(body));
+  const pageViews = () => events().filter(({ event }) => event === "$pageview");
+  await expect
+    .poll(() => pageViews().length, { message: "the page view", timeout: 15_000 })
+    .toBeGreaterThan(0);
+  expect(pageViews(), "page views per load").toHaveLength(1);
+  for (const { event, properties } of events()) {
+    expect(properties?.app, `the app of ${event}`).toBe(app);
+    const addresses = JSON.stringify(properties ?? {}).match(/https?:\/\/[^"]*/g) ?? [];
+    for (const address of addresses) expect(address, `an address in ${event}`).not.toMatch(/[?#]/);
+  }
 }

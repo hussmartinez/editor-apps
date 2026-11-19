@@ -1,0 +1,21 @@
+{
+  "name": "@editor-apps/analytics",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "description": "Anonymous analytics for the apps, through PostHog (docs/adr/0005). Runs in the browser. Never published.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "posthog-js": "1.442.1"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
