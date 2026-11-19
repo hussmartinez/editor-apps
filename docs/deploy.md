@@ -32,6 +32,8 @@ Every app's Worker is connected to this repository with the same settings. Only 
 | `pnpm-lock.yaml` alone                                         | nothing   |
 | Documentation, CI or tooling configuration                     | nothing   |
 
+**Large pushes build every app.** Cloudflare ignores the watch paths for a push with no changed files, with 3,000 changed files or more, or with 20 commits or more: it then builds every app. A squash merge pushes one commit, so only a change of that size, documentation included, does it, and it redeploys each app from the same source.
+
 **A lockfile-only merge deploys nothing by itself.** It's a transitive update: CI has tested every app with it, and the reviewer starts a build of each app in the Workers Builds dashboard, so production runs what `main` locks.
 
 ## Checks before merging

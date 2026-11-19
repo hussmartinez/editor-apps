@@ -61,6 +61,7 @@ An upgrade of one app's SDK must test and redeploy that app, and no other. Paths
 | `pnpm-lock.yaml` alone                                                   | every app                                    | none                     |
 | Documentation alone                                                      | none: the checks without a browser still run | none                     |
 
+- **Watch paths have exceptions.** Cloudflare ignores the watch paths for a push with no changed files, with 3,000 changed files or more, or with 20 commits or more: it then builds every app. A squash merge pushes one commit, so only a change of that size, documentation included, does it, and it redeploys each app from the same source.
 - **A lockfile-only change is a transitive update.** It's rare, so CI tests every app rather than work out which ones it reaches. Its merge redeploys nothing by itself: the reviewer starts the builds of the apps it affects, in Workers Builds.
 - **One script decides, `affected-apps` in `build-config`,** with a test that an upgrade of one app's SDK selects only that app. It uses Node and git alone, so CI runs it before installing anything.
 - **No build orchestrator, such as Turborepo, for now.** With four apps that each build in seconds, path rules do the job, and a task graph and a remote cache would be more to configure and trust than they'd save. It's worth another look when the roadmap's larger editors make builds slow.
@@ -97,4 +98,4 @@ How much review a pull request gets depends on what it can break.
 ## Amendments
 
 - **2026-11-18, with the scaffold:** the section "Which apps a change affects" was added, with the decision against a build orchestrator. The watch paths no longer include `pnpm-lock.yaml`, so that an SDK upgrade redeploys one app and a transitive update is redeployed by hand. The single-copy check is the repository's own, per app, because `hm-check-single-copy` checks a whole lockfile and the apps may differ from each other ([ADR 0001](0001-one-repository-and-its-layout.md)). Dependabot's one pull request per package is spelled out.
-- **2026-11-19:** watch paths are written with `*`, as Cloudflare documents them, not `**`, and the commands name the apps' packages, as `docs/deploy.md` does. The repository moved to the `ie-huss-martinez` organisation; the Workers Builds connections point there.
+- **2026-11-19:** watch paths are written with `*`, as Cloudflare documents them, not `**`, and the commands name the apps' packages, as `docs/deploy.md` does. The watch paths' exceptions for very large pushes are noted. The repository moved to the `ie-huss-martinez` organisation; the Workers Builds connections point there.
