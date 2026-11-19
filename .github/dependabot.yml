@@ -12,6 +12,12 @@ updates:
     groups:
       development-tools:
         dependency-type: development
+    ignore:
+      # @types/node describes the Node major in .node-version (24). Move
+      # both together, by hand, rather than take types for a Node the
+      # apps don't run on.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: build
       include: scope
