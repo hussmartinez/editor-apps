@@ -9,8 +9,8 @@ What's planned, in order. One pull request at a time. The decisions behind each 
 
 ## Before the first app
 
-- [ ] **A licence.** The repository is public without one, so all rights are reserved. It's the owner's choice.
-- [ ] **Branch protection on `main`,** with `ci` as the required check, as `docs/deploy.md` lists. It's a repository setting.
+- [x] **A licence** (2026-11-19): Apache-2.0, in `LICENSE`, with the copyright in `NOTICE`.
+- [x] **Branch protection on `main`,** with `ci` as the required check (2026-11-18).
 
 ## Import the apps
 

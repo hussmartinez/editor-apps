@@ -4,7 +4,7 @@ Four browser-only editors, for PDF, audio, image and video files, in one reposit
 
 Each app is a thin shell around an editor SDK of the [`@hussmartinez`](https://www.npmjs.com/org/hussmartinez) family: the SDK opens, edits and exports; the app adds its header, theme, response headers and deployment.
 
-> Status: being set up. The workspace, its tooling and CI are here; the apps are moving in from their own repositories, one pull request each. There is no licence yet: until one is added, all rights are reserved.
+> Status: being set up. The workspace, its tooling and CI are here; the apps are moving in from their own repositories, one pull request each.
 
 ## Layout
 
@@ -46,3 +46,7 @@ CI also builds each app a change affects, checks that it would deploy, and runs 
 - **Shared tools are pinned once,** in the catalog of `pnpm-workspace.yaml`. Each app pins its own SDK exactly.
 - **Test what the app adds, not what its SDK does** ([ADR 0003](docs/adr/0003-testing-and-playwright.md)).
 - **Pull requests are small, with a Conventional Commit title,** and are squash-merged once the `ci` check is green. See [NEXT_STEPS.md](NEXT_STEPS.md) for what's planned.
+
+## License
+
+[Apache-2.0](LICENSE). See [NOTICE](NOTICE).
