@@ -1,12 +1,12 @@
-import { PdfEditor, type PdfEditorChange } from "@hussmartinez/pdf-sdk/react";
-import { StrictMode, useCallback, useState } from "react";
-import { createRoot } from "react-dom/client";
+// ui's stylesheet first, then the SDK's, then the brand theme and the shell's.
 import "@hussmartinez/ui/styles.css";
 import "@hussmartinez/pdf-sdk/styles.css";
 import "virtual:theme.css";
-import "./styles.css";
-import { analytics } from "./analytics.ts";
-import { ErrorBoundary } from "./error-boundary";
+import "@editor-apps/app-shell/styles.css";
+import { AppShell, startApp, useAnalytics } from "@editor-apps/app-shell";
+import { PdfEditor, type PdfEditorChange } from "@hussmartinez/pdf-sdk/react";
+import { useCallback, useState } from "react";
+import { appConfig } from "./app.config.ts";
 
 /** The limits the app had before the SDK: warn at 100 MB, refuse over 300 MB. */
 const FILE_POLICY = {
@@ -22,7 +22,14 @@ function describe({ fileName, pageCount }: DocumentStatus): string {
   return fileName ? `${fileName} · ${pages}` : pages;
 }
 
+/**
+ * pdf-sdk's `PdfEditor` in the shared shell (docs/adr/0002), with the open
+ * document's name and page count in the header. Its workers and data come
+ * from the app's own origin (vite.config.ts), and its anonymous events go
+ * to the app's analytics (docs/adr/0005).
+ */
 function App() {
+  const analytics = useAnalytics();
   const [status, setStatus] = useState<DocumentStatus>({ pageCount: 0 });
 
   // The file name comes only with `open`; edits keep it, closing clears it.
@@ -37,36 +44,24 @@ function App() {
   }, []);
 
   return (
-    <div className="app-shell">
-      <header className="masthead">
-        <div>
-          <span className="eyebrow">Private workspace</span>
-          <h1>PDF Editor</h1>
-        </div>
-        {/* The name comes from the file, so it's rendered only as text. */}
-        <output className="status">{describe(status)}</output>
-      </header>
-      <main className="workspace">
-        <ErrorBoundary>
-          <PdfEditor
-            assetsUrl={__SDK_ASSETS_URL__}
-            filePolicy={FILE_POLICY}
-            onChange={handleChange}
-            onEvent={analytics.editorEvent}
-          />
-        </ErrorBoundary>
-      </main>
-    </div>
+    // The name comes from the file, so it's rendered only as text.
+    <AppShell title={appConfig.title} tagline={appConfig.tagline} status={describe(status)}>
+      <PdfEditor
+        className="app-editor"
+        assetsUrl={__SDK_ASSETS_URL__}
+        filePolicy={FILE_POLICY}
+        onChange={handleChange}
+        onEvent={analytics.editorEvent}
+      />
+    </AppShell>
   );
 }
 
-analytics.pageView();
-
-const root = document.getElementById("root");
-if (!root) throw new Error("Missing #root element.");
-
-createRoot(root).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+startApp({
+  app: appConfig.app,
+  analytics: {
+    key: import.meta.env.VITE_POSTHOG_KEY,
+    host: import.meta.env.VITE_POSTHOG_HOST || appConfig.analyticsHost,
+  },
+  render: () => <App />,
+});

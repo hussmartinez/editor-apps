@@ -14,6 +14,9 @@ export const appConfig = {
   engines: ["chromium", "firefox", "webkit"] satisfies Engine[],
   /** The app's name, which every analytics event carries as `app` (docs/adr/0005). */
   app: "image",
+  /** The app's name, the page's one `<h1>`, and the line under it. */
+  title: "Image Editor",
+  tagline: "Crop, rotate, adjust and export images in your browser. Nothing is uploaded.",
   /** Where analytics events go when the build has a key (docs/adr/0005). */
   analyticsHost: "https://eu.i.posthog.com",
 } as const;

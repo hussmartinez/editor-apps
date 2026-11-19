@@ -7,6 +7,7 @@ import {
   expectPolicyOrigins,
   expectSdkAssets,
   expectSecurityHeaders,
+  expectShellLook,
   expectThirdPartyLicenses,
   test,
 } from "@editor-apps/build-config/playwright";
@@ -85,4 +86,10 @@ test("both of the SDK's workers are served from the app's own origin, under its 
     expect(response.status(), worker).toBe(200);
     expect(response.headers()["content-type"], worker).toMatch(/javascript/);
   }
+});
+
+test("the shell looks as committed, in light and dark, and skips to the editor", async ({
+  page,
+}) => {
+  await expectShellLook(page);
 });

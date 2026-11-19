@@ -6,6 +6,7 @@ import {
   expectPolicyOrigins,
   expectSdkAssets,
   expectSecurityHeaders,
+  expectShellLook,
   expectThirdPartyLicenses,
   test,
 } from "@editor-apps/build-config/playwright";
@@ -91,3 +92,9 @@ function hasVideoTrack(file: Buffer): boolean {
   }
   return false;
 }
+
+test("the shell looks as committed, in light and dark, and skips to the editor", async ({
+  page,
+}) => {
+  await expectShellLook(page);
+});

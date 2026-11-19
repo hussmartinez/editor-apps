@@ -1,0 +1,35 @@
+{
+  "name": "@editor-apps/app-shell",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "description": "The page around every app's editor (docs/adr/0002): header, main landmark, ui's providers, the error boundary and analytics start-up. Never published.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles.css": "./src/styles.css"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@editor-apps/analytics": "workspace:*"
+  },
+  "peerDependencies": {
+    "@hussmartinez/sdk-core": ">=0.4.4 <0.5.0",
+    "@hussmartinez/ui": ">=0.11.0 <1.0.0",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@hussmartinez/sdk-core": "0.4.4",
+    "@hussmartinez/ui": "0.11.0",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "happy-dom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -51,6 +51,8 @@ export function smokeConfig({ port, engines }: SmokeOptions): PlaywrightTestConf
     forbidOnly: Boolean(process.env.CI),
     retries: 0,
     reporter: process.env.CI ? "line" : "list",
+    // Committed next to the tests, one set per browser; see expectShellLook.
+    snapshotPathTemplate: "{testDir}/__screenshots__/{projectName}/{arg}{ext}",
     use: { baseURL: url, trace: "retain-on-failure" },
     projects: run.map((engine) => ({ name: engine, use: { ...devices[DEVICES[engine]] } })),
     ...(deployment
@@ -331,4 +333,30 @@ export async function expectThirdPartyLicenses(page: Page, packageName: string):
   const text = await response.text();
   expect(text).toContain(`\n${packageName}@${installedVersion(packageName)}\n`);
   expect(text).toContain(`\nreact@${installedVersion("react")}\n`);
+}
+
+/**
+ * The shell's own part of the page (docs/adr/0002) looks as committed, in
+ * light and dark, and its skip link reaches the editor. Only the header is
+ * compared, not the SDK's editor, so an SDK upgrade changes no screenshot.
+ *
+ * Chromium only, and only in the browser test image, where fonts and
+ * rendering match CI's. Update the screenshots with `--update-snapshots`.
+ */
+export async function expectShellLook(page: Page): Promise<void> {
+  base.skip(base.info().project.name !== "chromium", "The screenshots are Chromium's.");
+  for (const scheme of ["light", "dark"] as const) {
+    await page.emulateMedia({ colorScheme: scheme });
+    await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+    await expect(page.locator("header").first()).toHaveScreenshot(`shell-header-${scheme}.png`);
+  }
+
+  await page.keyboard.press("Tab");
+  const skip = page.getByRole("link", { name: "Skip to the editor" });
+  await expect(skip).toBeFocused();
+  await expect(skip).toBeInViewport();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("main")).toBeFocused();
 }
