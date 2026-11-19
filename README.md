@@ -43,6 +43,7 @@ CI also builds each app a change affects, checks that it would deploy, and runs 
 ## Rules
 
 - **Nothing is named after a domain.** A domain appears only in an app's `wrangler.jsonc` and `src/app.config.ts`.
+- **Every build lists its third-party software** in `third-party-licenses.txt`, at the site's root, generated from what the build bundles, with each package's licence and notices word for word.
 - **No secrets, ever.** The repository is public, and deploy credentials exist only in Cloudflare.
 - **Shared tools are pinned once,** in the catalog of `pnpm-workspace.yaml`. Each app pins its own SDK exactly.
 - **Test what the app adds, not what its SDK does** ([ADR 0003](docs/adr/0003-testing-and-playwright.md)).

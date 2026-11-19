@@ -6,6 +6,7 @@ import {
   expectPolicyOrigins,
   expectSdkAssets,
   expectSecurityHeaders,
+  expectThirdPartyLicenses,
   test,
 } from "@editor-apps/build-config/playwright";
 import { appConfig } from "../src/app.config.ts";
@@ -32,6 +33,7 @@ test("the page is served with its headers, and has the shell's landmarks", async
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   await expect(page.getByRole("main")).toHaveCount(1);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /^https:\/\//);
+  await expectThirdPartyLicenses(page, "@hussmartinez/pdf-sdk");
 });
 
 test("a PDF opens and downloads as a PDF file, with the SDK's assets from this origin", async ({

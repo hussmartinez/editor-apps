@@ -6,6 +6,7 @@ import {
   expectPolicyOrigins,
   expectSdkAssets,
   expectSecurityHeaders,
+  expectThirdPartyLicenses,
   test,
 } from "@editor-apps/build-config/playwright";
 import { appConfig } from "../src/app.config.ts";
@@ -32,6 +33,7 @@ test("the page is served with its headers, and has the shell's landmarks", async
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   await expect(page.getByRole("main")).toHaveCount(1);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /^https:\/\//);
+  await expectThirdPartyLicenses(page, "@hussmartinez/image-sdk");
 });
 
 test("an image opens and exports as a PNG file, with the SDK's workers from this origin", async ({

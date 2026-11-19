@@ -3,6 +3,7 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import { loadEnv, type Plugin } from "vite";
 import { headersFile, httpsOrigin, type PolicyOptions, securityHeaders } from "./headers.ts";
+import { packageRoot, thirdPartyLicenses } from "./licenses.ts";
 
 /**
  * What an app tells the build about itself. Everything else is the same in
@@ -38,14 +39,15 @@ const CONTENT_TYPES: Record<string, string> = {
 };
 
 /**
- * The Vite plugin every app uses. It writes `_headers` into the build for
- * Cloudflare's static assets, sends the same headers from `vite preview`,
- * so tests run under production's policy, and copies the SDK's assets.
+ * The Vite plugins every app uses. They write `_headers` into the build for
+ * Cloudflare's static assets, send the same headers from `vite preview`,
+ * so tests run under production's policy, copy the SDK's assets, and write
+ * `third-party-licenses.txt`, generated from what the build bundles.
  *
  * The dev server sends none of them: Vite's own client needs inline code
  * there, which the policy forbids.
  */
-export function editorApp(options: EditorAppOptions = {}): Plugin {
+export function editorApp(options: EditorAppOptions = {}): Plugin[] {
   const headers = securityHeaders(options.policy);
   const assets = options.sdkAssets;
   if (assets && (!/^\/[\w.-]+(\/[\w.-]+)*\/$/.test(assets.url) || /\/\.\.?\//.test(assets.url))) {
@@ -54,8 +56,10 @@ export function editorApp(options: EditorAppOptions = {}): Plugin {
     );
   }
   let outDir = "dist";
+  // The SDK's self-hosted assets ship without passing through the bundle.
+  const sdkRoot = assets ? packageRoot(path.join(assets.from, "x")) : undefined;
 
-  return {
+  const app: Plugin = {
     name: "editor-apps:app",
     config: () => ({
       preview: { headers },
@@ -109,6 +113,7 @@ export function editorApp(options: EditorAppOptions = {}): Plugin {
       cpSync(assets.from, path.join(outDir, assets.url), { recursive: true });
     },
   };
+  return [app, thirdPartyLicenses(sdkRoot ? [sdkRoot] : [])];
 }
 
 /**
