@@ -58,6 +58,12 @@ That tests in Chromium. For every browser the app supports, as CI runs nightly, 
 pnpm exec hm-in-image env SMOKE_ENGINES=all playwright test
 ```
 
+To check a deployment instead of the local build, set `SMOKE_BASE_URL` to the app's address, the same way. No build or server is needed then. If the deployment has an analytics key, its events are answered in the browser by the test and never reach the provider.
+
+```sh
+pnpm exec hm-in-image env SMOKE_BASE_URL=https://<the app's address> playwright test
+```
+
 ## Deploying by hand
 
 Workers Builds is the normal path. As a fallback, build and deploy one app from a checkout, with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment of that one shell. Don't write them to a file in the repository.

@@ -66,7 +66,13 @@ export function editorApp(options: EditorAppOptions = {}): Plugin {
     configureServer(server) {
       if (!assets) return;
       server.middlewares.use((request, response, next) => {
-        const pathname = decodeURIComponent((request.url ?? "").split("?")[0] ?? "");
+        let pathname: string;
+        try {
+          pathname = decodeURIComponent((request.url ?? "").split("?")[0] ?? "");
+        } catch {
+          // A malformed escape, such as %E0, isn't an asset: Vite answers it.
+          return next();
+        }
         if (!pathname.startsWith(assets.url)) return next();
         const file = path.resolve(assets.from, pathname.slice(assets.url.length));
         // Never outside the assets directory.

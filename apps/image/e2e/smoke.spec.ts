@@ -1,12 +1,11 @@
 import { readFile } from "node:fs/promises";
-import { createRequire } from "node:module";
-import { expect, expectSecurityHeaders, test } from "@editor-apps/build-config/playwright";
+import {
+  expect,
+  expectSdkAssets,
+  expectSecurityHeaders,
+  test,
+} from "@editor-apps/build-config/playwright";
 import { gradientPng, pngSize } from "./fixture.ts";
-
-/** The installed SDK's version, which names the path its assets must load from. */
-const { version: sdkVersion } = createRequire(import.meta.url)(
-  "@hussmartinez/image-sdk/package.json",
-) as { version: string };
 
 // The `problems` fixture fails either test on a console error, a policy
 // violation, a failed response or a request to another origin.
@@ -52,9 +51,5 @@ test("an image opens and exports as a PNG file, with the SDK's workers from this
   expect(png.subarray(0, 8)).toEqual(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
   expect(pngSize(png)).toEqual({ width: 64, height: 48 });
 
-  // Every SDK asset comes from this origin, under the installed SDK's version.
-  const base = `${new URL(page.url()).origin}/image-sdk/${sdkVersion}/`;
-  const assets = problems.requests.filter((url) => url.includes("/image-sdk/"));
-  expect(assets.length).toBeGreaterThan(0);
-  for (const asset of assets) expect(asset.startsWith(base), asset).toBe(true);
+  expectSdkAssets(problems, page, "@hussmartinez/image-sdk");
 });
