@@ -5,9 +5,8 @@ import { parseAllDocuments } from "yaml";
  * (docs/adr/0001). Two copies of ui or React in one page break their
  * providers and hooks.
  *
- * It's checked for each app, not for the whole lockfile: apps may differ
- * from each other while their SDKs need different ui versions, but one
- * app's own dependencies must agree.
+ * Each app's own dependencies must agree, and the apps must agree with each
+ * other on ui and sdk-core, which app-shell runs on in every app.
  */
 
 interface Lockfile {
@@ -25,6 +24,9 @@ export function mustBeSingle(name: string): boolean {
   return name.startsWith("@hussmartinez/") || name === "react" || name === "react-dom";
 }
 
+/** The packages every app must have in the same version: app-shell's peers from the family. */
+export const SHARED_ACROSS_APPS = ["@hussmartinez/sdk-core", "@hussmartinez/ui"] as const;
+
 /**
  * @param lockfile - The text of `pnpm-lock.yaml`.
  * @param importer - The app, as the lockfile names it, such as `apps/pdf`.
@@ -33,6 +35,45 @@ export function mustBeSingle(name: string): boolean {
  * @throws `Error` if the lockfile doesn't have the importer.
  */
 export function duplicateCopies(lockfile: string, importer: string): Record<string, string[]> {
+  const duplicates: Record<string, string[]> = {};
+  for (const [name, found] of Object.entries(bundledVersions(lockfile, importer))) {
+    if (found.length > 1) duplicates[name] = found;
+  }
+  return duplicates;
+}
+
+/**
+ * @param lockfile - The text of `pnpm-lock.yaml`.
+ * @param importers - The apps, as the lockfile names them, such as `apps/pdf`.
+ * @returns Each package of {@link SHARED_ACROSS_APPS} that the apps bundle in
+ *   different versions, with each app's versions. Empty when they agree. An
+ *   app that doesn't bundle a package doesn't count for it.
+ * @throws `Error` if the lockfile doesn't have one of the importers.
+ */
+export function differentAcrossApps(
+  lockfile: string,
+  importers: readonly string[],
+): Record<string, Record<string, string>> {
+  const bundled = importers.map(
+    (importer) => [importer, bundledVersions(lockfile, importer)] as const,
+  );
+  const differences: Record<string, Record<string, string>> = {};
+  for (const name of SHARED_ACROSS_APPS) {
+    const byApp: Record<string, string> = {};
+    for (const [importer, versions] of bundled) {
+      const found = versions[name];
+      if (found) byApp[importer] = found.join(" and ");
+    }
+    if (new Set(Object.values(byApp)).size > 1) differences[name] = byApp;
+  }
+  return differences;
+}
+
+/**
+ * @returns Every version the app bundles of each package that
+ *   {@link mustBeSingle} names, sorted, by package name.
+ */
+function bundledVersions(lockfile: string, importer: string): Record<string, string[]> {
   // pnpm writes two documents: one for the package manager itself, then the
   // project's. The project's is the one with the importer.
   const lock = parseAllDocuments(lockfile)
@@ -82,12 +123,11 @@ export function duplicateCopies(lockfile: string, importer: string): Record<stri
     }
   }
 
-  const duplicates: Record<string, string[]> = {};
+  const bundled: Record<string, string[]> = {};
   for (const name of [...versions.keys()].sort()) {
-    const found = versions.get(name) ?? new Set();
-    if (found.size > 1) duplicates[name] = [...found].sort();
+    bundled[name] = [...(versions.get(name) ?? [])].sort();
   }
-  return duplicates;
+  return bundled;
 }
 
 /** Resolves a lockfile's relative link, such as `../../packages/app-shell` from `apps/pdf`. */

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { duplicateCopies } from "./single-copy.ts";
+import { differentAcrossApps, duplicateCopies } from "./single-copy.ts";
 
-/** Two apps on different ui versions, which is allowed, and a shared workspace package. */
+/** Apps on different ui versions, which each allow on their own, and a shared workspace package. */
 const lockfile = `
 lockfileVersion: '9.0'
 importers:
@@ -24,6 +24,14 @@ importers:
         specifier: 9.9.9
         version: 9.9.9
   apps/two:
+    dependencies:
+      '@hussmartinez/two-sdk':
+        specifier: 2.0.0
+        version: 2.0.0(react@19.3.1)
+      '@hussmartinez/ui':
+        specifier: 0.10.0
+        version: 0.10.0(react@19.3.1)
+  apps/three:
     dependencies:
       '@hussmartinez/two-sdk':
         specifier: 2.0.0
@@ -104,5 +112,29 @@ describe("duplicateCopies", () => {
 
   it("fails for an app the lockfile doesn't have", () => {
     expect(() => duplicateCopies(lockfile, "apps/missing")).toThrow(/no importer apps\/missing/);
+  });
+});
+
+describe("differentAcrossApps", () => {
+  it("accepts apps that bundle the same ui and sdk-core", () => {
+    expect(differentAcrossApps(lockfile, ["apps/two", "apps/three"])).toEqual({});
+  });
+
+  it("reports apps that bundle different ui versions, with each app's", () => {
+    expect(differentAcrossApps(lockfile, ["apps/one", "apps/two", "apps/three"])).toEqual({
+      "@hussmartinez/ui": { "apps/one": "0.8.0", "apps/two": "0.10.0", "apps/three": "0.10.0" },
+    });
+  });
+
+  it("lists both versions of an app that has two", () => {
+    expect(differentAcrossApps(lockfile, ["apps/two", "apps/broken"])).toEqual({
+      "@hussmartinez/ui": { "apps/two": "0.10.0", "apps/broken": "0.10.0 and 0.8.0" },
+    });
+  });
+
+  it("fails for an app the lockfile doesn't have", () => {
+    expect(() => differentAcrossApps(lockfile, ["apps/one", "apps/missing"])).toThrow(
+      /no importer apps\/missing/,
+    );
   });
 });
