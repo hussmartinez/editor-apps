@@ -80,7 +80,14 @@ body {
   white-space: nowrap;
 }
 
+/* The editor, and the ad slot beside it when there is one. */
+.app-shell-body {
+  display: flex;
+  min-block-size: 0;
+}
+
 .app-shell-main {
+  flex: 1;
   display: flex;
   flex-direction: column;
   min-block-size: 0;
@@ -104,4 +111,78 @@ body {
 .app-shell-crash h2 {
   margin-block-start: 0;
   font-size: var(--hm-font-size-title);
+}
+
+/*
+ * The ad slot (docs/adr/0007): a fixed 160 × 600 box, the IAB's wide
+ * skyscraper, so nothing moves when a real ad arrives. Shown only where the
+ * editor keeps room: at least 1280 pixels wide and 720 high.
+ */
+.app-shell-ad {
+  display: none;
+}
+
+@media (min-width: 1280px) and (min-height: 720px) {
+  .app-shell-ad {
+    display: block;
+    flex: none;
+    padding-block: var(--hm-inset-normal);
+    padding-inline-end: var(--hm-inset-normal);
+  }
+}
+
+.app-shell-ad-box {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  inline-size: 160px;
+  block-size: 600px;
+  overflow: hidden;
+  border: var(--hm-border-width) dashed var(--hm-color-border-strong);
+  border-radius: var(--hm-radius-md);
+  background: var(--hm-color-surface-sunken);
+}
+
+.app-shell-ad-art {
+  flex: 1;
+  min-block-size: 0;
+}
+
+.app-shell-ad-art > svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.app-shell-ad-label {
+  margin: 0;
+  padding: var(--hm-inset-tight);
+  color: var(--hm-color-text-muted);
+  font-size: var(--hm-font-size-small);
+  text-align: center;
+}
+
+/* The colours the apps' placeholder art is drawn with: ui's tokens only. */
+.app-ad-accent {
+  fill: var(--hm-color-accent);
+}
+
+.app-ad-soft {
+  fill: var(--hm-color-accent-subtle);
+}
+
+.app-ad-paper {
+  fill: var(--hm-color-surface-raised);
+}
+
+.app-ad-ink {
+  fill: var(--hm-color-text-muted);
+}
+
+.app-ad-line {
+  fill: none;
+  stroke: var(--hm-color-text-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }

@@ -1,5 +1,6 @@
 import { AnnouncerProvider, UiMessagesProvider } from "@hussmartinez/ui/react";
 import type { ReactNode } from "react";
+import { AdSlot } from "./AdSlot.tsx";
 import { ErrorBoundary } from "./ErrorBoundary.tsx";
 import { useLeaveGuard } from "./leave-guard.ts";
 import { messages } from "./messages.ts";
@@ -20,6 +21,11 @@ export interface AppShellProps {
    * from the SDK's events.
    */
   readonly unsaved?: boolean;
+  /**
+   * The ad slot's placeholder art (docs/adr/0007). Without it there's no
+   * slot, and the editor takes the whole width.
+   */
+  readonly ad?: ReactNode;
   /** The SDK's editor, which fills the main area. Give it the class `app-editor`. */
   readonly children: ReactNode;
 }
@@ -28,10 +34,11 @@ export interface AppShellProps {
  * The page around every app's editor (docs/adr/0002): ui's providers, a
  * skip link, a header with the app's name as the only `<h1>`, the `<main>`
  * landmark at full height, the shared error boundary around the editor, and
- * the leave guard while there are unsaved edits. Import
+ * the leave guard while there are unsaved edits, and the ad slot beside the
+ * editor when the app gives its art. Import
  * `@editor-apps/app-shell/styles.css` after ui's and the SDK's stylesheets.
  */
-export function AppShell({ title, tagline, status, unsaved = false, children }: AppShellProps) {
+export function AppShell({ title, tagline, status, unsaved = false, ad, children }: AppShellProps) {
   useLeaveGuard(unsaved);
   return (
     <UiMessagesProvider messages={messages}>
@@ -45,10 +52,13 @@ export function AppShell({ title, tagline, status, unsaved = false, children }: 
             <p className="app-shell-tagline">{tagline}</p>
             {status !== undefined && <output className="app-shell-status">{status}</output>}
           </header>
-          {/* Focusable by the skip link only, so it isn't a tab stop. */}
-          <main id="app-shell-main" className="app-shell-main" tabIndex={-1}>
-            <ErrorBoundary>{children}</ErrorBoundary>
-          </main>
+          <div className="app-shell-body">
+            {/* Focusable by the skip link only, so it isn't a tab stop. */}
+            <main id="app-shell-main" className="app-shell-main" tabIndex={-1}>
+              <ErrorBoundary>{children}</ErrorBoundary>
+            </main>
+            {ad !== undefined && <AdSlot>{ad}</AdSlot>}
+          </div>
         </div>
       </AnnouncerProvider>
     </UiMessagesProvider>

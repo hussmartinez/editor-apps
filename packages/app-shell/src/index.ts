@@ -14,6 +14,7 @@
  * events to analytics and gives `<AppShell unsaved>` for the leave guard.
  */
 
+export { AdSlot, type AdSlotProps } from "./AdSlot.tsx";
 export { AppShell, type AppShellProps } from "./AppShell.tsx";
 export { AnalyticsContext, useAnalytics } from "./analytics.ts";
 export { ErrorBoundary } from "./ErrorBoundary.tsx";
