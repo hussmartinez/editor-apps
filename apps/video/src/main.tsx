@@ -6,6 +6,7 @@ import "@editor-apps/app-shell/styles.css";
 import { AppShell, startApp, type UnsavedAfter, useEditorEvents } from "@editor-apps/app-shell";
 import type { VideoSessionEvent } from "@hussmartinez/video-sdk";
 import { VideoEditor } from "@hussmartinez/video-sdk/react";
+import { AdArt } from "./AdArt.tsx";
 import { appConfig } from "./app.config.ts";
 
 /**
@@ -28,7 +29,12 @@ const unsavedAfter: UnsavedAfter<VideoSessionEvent> = ({ type, outcome }) => {
 function App() {
   const editor = useEditorEvents(unsavedAfter);
   return (
-    <AppShell title={appConfig.title} tagline={appConfig.tagline} unsaved={editor.unsaved}>
+    <AppShell
+      title={appConfig.title}
+      tagline={appConfig.tagline}
+      unsaved={editor.unsaved}
+      ad={<AdArt />}
+    >
       <VideoEditor className="app-editor" assetsUrl={__SDK_ASSETS_URL__} onEvent={editor.onEvent} />
     </AppShell>
   );

@@ -1,6 +1,6 @@
 # 0006. Ads only in a sandboxed frame from another origin
 
-- **Status:** Accepted
+- **Status:** Accepted; the slot's placeholder and the collapse of an empty slot superseded by [ADR 0007](0007-the-ad-slot-contract.md)
 - **Date:** 2026-11-18
 
 ## Context

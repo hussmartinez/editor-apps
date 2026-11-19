@@ -7,6 +7,7 @@ import { AppShell, startApp, type UnsavedAfter, useEditorEvents } from "@editor-
 import type { PdfSessionEvent } from "@hussmartinez/pdf-sdk";
 import { PdfEditor, type PdfEditorChange } from "@hussmartinez/pdf-sdk/react";
 import { useCallback, useState } from "react";
+import { AdArt } from "./AdArt.tsx";
 import { appConfig } from "./app.config.ts";
 
 /** The limits the app had before the SDK: warn at 100 MB, refuse over 300 MB. */
@@ -71,6 +72,7 @@ function App() {
       title={appConfig.title}
       tagline={appConfig.tagline}
       unsaved={editor.unsaved}
+      ad={<AdArt />}
       status={describe(status)}
     >
       <PdfEditor

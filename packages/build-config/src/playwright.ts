@@ -337,7 +337,8 @@ export async function expectThirdPartyLicenses(page: Page, packageName: string):
 
 /**
  * The shell's own part of the page (docs/adr/0002) looks as committed, in
- * light and dark, and its skip link reaches the editor. Only the header is
+ * light and dark, its ad slot has its art and its fixed 160 × 600 size, and
+ * its skip link reaches the editor. Only the header and the slot are
  * compared, not the SDK's editor, so an SDK upgrade changes no screenshot.
  *
  * Chromium only, and only in the browser test image, where fonts and
@@ -351,7 +352,12 @@ export async function expectShellLook(page: Page): Promise<void> {
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
     await expect(page.locator("header").first()).toHaveScreenshot(`shell-header-${scheme}.png`);
+    await expect(page.locator(".app-shell-ad-box")).toHaveScreenshot(`shell-ad-${scheme}.png`);
   }
+
+  // The ad slot keeps its fixed size, so nothing moves when an ad fills it.
+  const slot = await page.locator(".app-shell-ad-box").boundingBox();
+  expect(slot).toMatchObject({ width: 160, height: 600 });
 
   await page.keyboard.press("Tab");
   const skip = page.getByRole("link", { name: "Skip to the editor" });

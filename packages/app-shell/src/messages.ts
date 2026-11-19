@@ -14,6 +14,7 @@ const catalogue = defineMessages({
   "shell.crash.body":
     "Your file never left this device and is untouched, but unsaved edits are lost. Reload the page to start again.",
   "shell.crash.reload": "Reload the page",
+  "shell.ad.placeholder": "Your ad here",
 });
 
 export const messages = createMessages(catalogue, { locale: "en" });
