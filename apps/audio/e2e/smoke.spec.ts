@@ -8,6 +8,7 @@ import {
   expectSecurityHeaders,
   expectShellLook,
   expectThirdPartyLicenses,
+  leavingAsks,
   test,
 } from "@editor-apps/build-config/playwright";
 import { appConfig } from "../src/app.config.ts";
@@ -61,7 +62,7 @@ test("the page is served with its headers, and has the shell's landmarks", async
   await expectThirdPartyLicenses(page, "@hussmartinez/audio-sdk");
 });
 
-test("a recording opens and exports as a WAV file, with the SDK's worker from this origin", async ({
+test("a recording opens, is edited and exports as WAV, guarded until then, with the SDK's worker from this origin", async ({
   page,
   problems,
 }) => {
@@ -75,11 +76,20 @@ test("a recording opens and exports as a WAV file, with the SDK's worker from th
   // The SDK's Export tool opens its export dialog, which writes the file.
   const exportTool = page.getByRole("toolbar").getByRole("button", { name: "Export", exact: true });
   await expect(exportTool).toBeEnabled({ timeout: 30_000 });
+
+  // The leave guard: off for an untouched recording, on after an edit, and
+  // off again once it's exported.
+  expect(await leavingAsks(page)).toBe(false);
+  await page.getByRole("toolbar").getByRole("button", { name: "Add track", exact: true }).click();
+  await expect.poll(() => leavingAsks(page)).toBe(true);
+
   await exportTool.click();
   const dialog = page.getByRole("dialog", { name: "Export" });
   await dialog.getByRole("button", { name: "Export", exact: true }).click();
   const download = dialog.getByRole("button", { name: "Download" });
   await expect(download).toBeVisible({ timeout: 30_000 });
+  // Cleared once the file is ready: before Download is pressed (docs/adr/0002).
+  await expect.poll(() => leavingAsks(page)).toBe(false);
   const saving = page.waitForEvent("download");
   await download.click();
   const saved = await saving;

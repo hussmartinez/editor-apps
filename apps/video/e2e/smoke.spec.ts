@@ -8,6 +8,7 @@ import {
   expectSecurityHeaders,
   expectShellLook,
   expectThirdPartyLicenses,
+  leavingAsks,
   test,
 } from "@editor-apps/build-config/playwright";
 import { appConfig } from "../src/app.config.ts";
@@ -40,7 +41,7 @@ test("the page is served with its headers, and has the shell's landmarks", async
   await expectThirdPartyLicenses(page, "@hussmartinez/video-sdk");
 });
 
-test("a video opens and exports as a video file, with the SDK's workers from this origin", async ({
+test("a video opens and exports, guarded until then, with the SDK's workers from this origin", async ({
   page,
   problems,
 }) => {
@@ -56,11 +57,17 @@ test("a video opens and exports as a video file, with the SDK's workers from thi
   });
   await expect(page.getByRole("listbox", { name: "Clips" }).getByRole("option")).toHaveCount(1);
 
+  // The leave guard: adding a clip is already an edit, so it's on, and it's
+  // off again once the video is exported.
+  await expect.poll(() => leavingAsks(page)).toBe(true);
+
   await page.getByRole("button", { name: "Export the video", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export the video" });
   await dialog.getByRole("button", { name: "Export", exact: true }).click();
   const download = dialog.getByRole("button", { name: /^Download/ });
   await expect(download).toBeEnabled({ timeout: 90_000 });
+  // Cleared once the file is ready: before Download is pressed (docs/adr/0002).
+  await expect.poll(() => leavingAsks(page)).toBe(false);
   const saving = page.waitForEvent("download");
   await download.click();
   const video = await readFile(await (await saving).path());

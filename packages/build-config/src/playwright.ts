@@ -360,3 +360,32 @@ export async function expectShellLook(page: Page): Promise<void> {
   await page.keyboard.press("Enter");
   await expect(page.getByRole("main")).toBeFocused();
 }
+
+/**
+ * Whether leaving the page now would make the browser ask first: it
+ * dispatches a cancelable `beforeunload`, as the browser does, and reads
+ * whether the shell's leave guard cancelled it (docs/adr/0002). Poll it,
+ * since the guard follows the SDK's events.
+ */
+export function leavingAsks(page: Page): Promise<boolean> {
+  return page.evaluate(() => {
+    const event = new Event("beforeunload", { cancelable: true });
+    window.dispatchEvent(event);
+    return event.defaultPrevented;
+  });
+}
+
+/**
+ * Checks the browser's own prompt on leaving: it tries to close the page,
+ * expects a `beforeunload` dialog, dismisses it, and checks the page stays
+ * open. Browsers show the prompt only after the person has interacted with
+ * the page, so call it after an edit made through the UI.
+ */
+export async function expectLeavePrompt(page: Page): Promise<void> {
+  const prompt = page.waitForEvent("dialog");
+  await page.close({ runBeforeUnload: true });
+  const dialog = await prompt;
+  expect(dialog.type()).toBe("beforeunload");
+  await dialog.dismiss();
+  expect(page.isClosed()).toBe(false);
+}
