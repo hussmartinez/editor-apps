@@ -87,6 +87,21 @@ describe("duplicateCopies", () => {
     expect(duplicateCopies(lockfile, "apps/one")["@hussmartinez/sdk-core"]).toBeUndefined();
   });
 
+  it("reads the project's document after pnpm's own, as pnpm 12 writes them", () => {
+    const own = "lockfileVersion: '9.0'\nimporters:\n  .:\n    packageManagerDependencies: {}\n";
+    expect(duplicateCopies(`---\n${own}---\n${lockfile}`, "apps/broken")).toEqual({
+      "@hussmartinez/ui": ["0.10.0", "0.8.0"],
+    });
+  });
+
+  it("rejects a lockfile with a YAML error, rather than reading part of it", () => {
+    // A second snapshots mapping is a duplicate key: read leniently, it would
+    // replace the first and hide apps/broken's second ui.
+    expect(() => duplicateCopies(`${lockfile}snapshots: {}\n`, "apps/broken")).toThrow(
+      /can't be read/,
+    );
+  });
+
   it("fails for an app the lockfile doesn't have", () => {
     expect(() => duplicateCopies(lockfile, "apps/missing")).toThrow(/no importer apps\/missing/);
   });

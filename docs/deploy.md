@@ -41,7 +41,18 @@ pnpm install --frozen-lockfile
 pnpm verify
 ```
 
-`pnpm verify` runs Biome, the typecheck, the unit tests and the repository's own checks. Each app's browser test runs in the pinned image of `ci/Dockerfile`, which needs Docker.
+`pnpm verify` runs Biome, the typecheck, the unit tests and the repository's own checks. Each app's browser test runs in the pinned image of `ci/Dockerfile`, which needs Docker and a build of the app:
+
+```sh
+pnpm --filter @editor-apps/<app> run build
+pnpm --filter @editor-apps/<app> run test:e2e
+```
+
+That tests in Chromium. For every browser the app supports, as CI runs nightly, set `SMOKE_ENGINES` inside the image: the image runner doesn't pass the variable through from the host. From the app's folder:
+
+```sh
+pnpm exec hm-in-image env SMOKE_ENGINES=all playwright test
+```
 
 ## Deploying by hand
 

@@ -1,4 +1,4 @@
-import { parse } from "yaml";
+import { parseAllDocuments } from "yaml";
 
 /**
  * Finds packages that an app would bundle in more than one version
@@ -33,9 +33,19 @@ export function mustBeSingle(name: string): boolean {
  * @throws `Error` if the lockfile doesn't have the importer.
  */
 export function duplicateCopies(lockfile: string, importer: string): Record<string, string[]> {
-  const lock = parse(lockfile) as Lockfile;
-  const root = lock.importers?.[importer];
-  if (!root) throw new Error(`pnpm-lock.yaml has no importer ${importer}.`);
+  // pnpm writes two documents: one for the package manager itself, then the
+  // project's. The project's is the one with the importer.
+  const lock = parseAllDocuments(lockfile)
+    .map((document) => {
+      // Unlike parse(), parseAllDocuments() keeps errors instead of throwing,
+      // and toJS() would quietly use whatever it could read.
+      const [error] = document.errors;
+      if (error) throw new Error(`pnpm-lock.yaml can't be read: ${error.message}`);
+      return document.toJS() as Lockfile | null;
+    })
+    .find((candidate) => candidate?.importers?.[importer]);
+  const root = lock?.importers?.[importer];
+  if (!lock || !root) throw new Error(`pnpm-lock.yaml has no importer ${importer}.`);
 
   const versions = new Map<string, Set<string>>();
   const seen = new Set<string>();

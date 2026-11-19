@@ -5,7 +5,11 @@
   "type": "module",
   "description": "Build and test helpers shared by the apps: the response headers, the Vite preset and the repository's own checks. Never published, and never in a bundle.",
   "exports": {
+    "./client": {
+      "types": "./src/client.d.ts"
+    },
     "./headers": "./src/headers.ts",
+    "./playwright": "./src/playwright.ts",
     "./vite": "./src/vite.ts"
   },
   "scripts": {
@@ -16,9 +20,11 @@
     "yaml": "catalog:"
   },
   "peerDependencies": {
+    "@playwright/test": "catalog:",
     "vite": "catalog:"
   },
   "devDependencies": {
+    "@playwright/test": "catalog:",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",

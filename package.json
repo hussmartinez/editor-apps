@@ -12,6 +12,7 @@
     "lint:fix": "biome check --write .",
     "typecheck": "pnpm -r run typecheck",
     "test": "pnpm -r run test",
+    "test:e2e": "pnpm -r --workspace-concurrency=1 run test:e2e",
     "check:single-copy": "node packages/build-config/src/cli/check-single-copy.ts",
     "check:domains": "node packages/build-config/src/cli/check-domains.ts",
     "check:playwright-image": "hm-check-playwright-image",
