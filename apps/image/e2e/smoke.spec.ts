@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import {
   analyticsOriginUnderTest,
   expect,
@@ -68,4 +69,20 @@ test("an image opens and exports as a PNG file, with the SDK's workers from this
 
   expectSdkAssets(problems, page, "@hussmartinez/image-sdk");
   await expectAnalytics(problems, analytics, appConfig.app);
+});
+
+test("both of the SDK's workers are served from the app's own origin, under its version", async ({
+  page,
+}) => {
+  // The render worker runs in the round trip above. The job worker writes
+  // GIFs, which this app's test doesn't export, so check that the app
+  // serves both, as JavaScript, where the SDK looks for them.
+  const { version } = createRequire(import.meta.url)("@hussmartinez/image-sdk/package.json") as {
+    version: string;
+  };
+  for (const worker of ["render.worker.js", "job.worker.js"]) {
+    const response = await page.request.get(`/image-sdk/${version}/image/${worker}`);
+    expect(response.status(), worker).toBe(200);
+    expect(response.headers()["content-type"], worker).toMatch(/javascript/);
+  }
 });
