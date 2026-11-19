@@ -170,6 +170,12 @@ catalogs:
     '@hussmartinez/sdk-config':
       specifier: 0.9.0
       version: 0.9.0
+    '@hussmartinez/sdk-core':
+      specifier: 0.4.4
+      version: 0.4.4
+    '@hussmartinez/ui':
+      specifier: 0.15.0
+      version: 0.15.0
     '@playwright/test':
       specifier: 1.65.1
       version: 1.65.1
@@ -236,10 +242,10 @@ importers:
         specifier: 0.7.5
         version: 0.7.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@hussmartinez/sdk-core':
-        specifier: 0.4.4
+        specifier: 'catalog:'
         version: 0.4.4
       '@hussmartinez/ui':
-        specifier: 0.15.0
+        specifier: 'catalog:'
         version: 0.15.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react:
         specifier: 'catalog:'
@@ -288,10 +294,10 @@ importers:
         specifier: 0.9.0
         version: 0.9.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@hussmartinez/sdk-core':
-        specifier: 0.4.4
+        specifier: 'catalog:'
         version: 0.4.4
       '@hussmartinez/ui':
-        specifier: 0.15.0
+        specifier: 'catalog:'
         version: 0.15.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react:
         specifier: 'catalog:'
@@ -340,10 +346,10 @@ importers:
         specifier: 0.4.3
         version: 0.4.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@hussmartinez/sdk-core':
-        specifier: 0.4.4
+        specifier: 'catalog:'
         version: 0.4.4
       '@hussmartinez/ui':
-        specifier: 0.15.0
+        specifier: 'catalog:'
         version: 0.15.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react:
         specifier: 'catalog:'
@@ -389,10 +395,10 @@ importers:
         specifier: workspace:*
         version: link:../../packages/app-shell
       '@hussmartinez/sdk-core':
-        specifier: 0.4.4
+        specifier: 'catalog:'
         version: 0.4.4
       '@hussmartinez/ui':
-        specifier: 0.15.0
+        specifier: 'catalog:'
         version: 0.15.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@hussmartinez/video-sdk':
         specifier: 0.5.0
@@ -455,10 +461,10 @@ importers:
         version: link:../analytics
     devDependencies:
       '@hussmartinez/sdk-core':
-        specifier: 0.4.4
+        specifier: 'catalog:'
         version: 0.4.4
       '@hussmartinez/ui':
-        specifier: 0.15.0
+        specifier: 'catalog:'
         version: 0.15.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@types/react':
         specifier: 'catalog:'
