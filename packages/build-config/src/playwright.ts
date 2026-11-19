@@ -100,6 +100,10 @@ export const test = base.extend<SmokeTestOptions & { problems: Problems }>({
       const problems: Problems = { errors: [], foreign: [], requests: [] };
       const own = new URL(baseURL ?? "http://127.0.0.1").origin;
       const analytics = new Set(analyticsOrigins.map((origin) => new URL(origin).origin));
+      // Answering the app's own origin would answer its pages too.
+      if (analytics.has(own)) {
+        throw new Error(`analyticsOrigins includes the app's own origin, ${own}.`);
+      }
       if (analytics.size > 0) {
         await page.context().route(
           (url) => analytics.has(url.origin),
