@@ -5,8 +5,11 @@ import type { Plugin } from "vite";
 /** The file each build gets, at the root of the site. */
 export const LICENSES_FILE = "third-party-licenses.txt";
 
-/** Files a package ships that carry its licence or its own notices. */
-const NOTICE_FILE = /^(licen[cs]e|notice|copying|third[-_]party[-_]notices?)(\.(md|txt))?$/i;
+/**
+ * Files a package ships that carry its licence or its own notices, such as
+ * `LICENSE`, `LICENSE.md`, `LICENSE-MIT`, `NOTICE` or `THIRD_PARTY_NOTICES.md`.
+ */
+const NOTICE_FILE = /^(licen[cs]e|notice|copying|third[-_]party[-_]notices?)([-_.][\w.-]*)?$/i;
 
 interface BundledPackage {
   readonly name: string;
@@ -21,14 +24,16 @@ interface BundledPackage {
  * the app's own code and this repository's packages, belong to none.
  */
 export function packageRoot(moduleId: string): string | undefined {
-  const file = moduleId.replace(/^\0/, "").split("?")[0] ?? "";
-  const marker = `${path.sep}node_modules${path.sep}`;
+  // Vite's module ids use forward slashes on every platform; a path from
+  // Node's own APIs may not, on Windows.
+  const file = (moduleId.replace(/^\0/, "").split("?")[0] ?? "").replaceAll("\\", "/");
+  const marker = "/node_modules/";
   const at = file.lastIndexOf(marker);
   if (at === -1) return undefined;
-  const parts = file.slice(at + marker.length).split(path.sep);
+  const parts = file.slice(at + marker.length).split("/");
   const depth = parts[0]?.startsWith("@") ? 2 : 1;
   if (parts.length < depth) return undefined;
-  return file.slice(0, at + marker.length) + parts.slice(0, depth).join(path.sep);
+  return file.slice(0, at + marker.length) + parts.slice(0, depth).join("/");
 }
 
 function describe(root: string): BundledPackage | undefined {

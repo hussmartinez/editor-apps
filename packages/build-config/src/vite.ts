@@ -57,7 +57,8 @@ export function editorApp(options: EditorAppOptions = {}): Plugin[] {
   }
   let outDir = "dist";
   // The SDK's self-hosted assets ship without passing through the bundle.
-  const sdkRoot = assets ? packageRoot(path.join(assets.from, "x")) : undefined;
+  // Absolute first: a relative directory has no node_modules to find.
+  const sdkRoot = assets ? packageRoot(path.resolve(assets.from, "x")) : undefined;
 
   const app: Plugin = {
     name: "editor-apps:app",

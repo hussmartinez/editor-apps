@@ -7,28 +7,35 @@ import { LICENSES_FILE, licensesText, packageRoot } from "./licenses.ts";
 import { editorApp } from "./vite.ts";
 
 describe("packageRoot", () => {
-  const nm = `${path.sep}repo${path.sep}node_modules${path.sep}`;
-
   it("finds a package, and a scoped package, under node_modules", () => {
-    expect(packageRoot(`${nm}react${path.sep}index.js`)).toBe(`${nm}react`);
-    expect(packageRoot(`${nm}@scope${path.sep}pkg${path.sep}dist${path.sep}a.js`)).toBe(
-      `${nm}@scope${path.sep}pkg`,
+    expect(packageRoot("/repo/node_modules/react/index.js")).toBe("/repo/node_modules/react");
+    expect(packageRoot("/repo/node_modules/@scope/pkg/dist/a.js")).toBe(
+      "/repo/node_modules/@scope/pkg",
     );
   });
 
   it("uses the last node_modules, as pnpm nests them", () => {
-    const id = `${nm}.pnpm${path.sep}x@1${path.sep}node_modules${path.sep}x${path.sep}i.js`;
-    expect(packageRoot(id)).toBe(`${nm}.pnpm${path.sep}x@1${path.sep}node_modules${path.sep}x`);
+    expect(packageRoot("/repo/node_modules/.pnpm/x@1/node_modules/x/i.js")).toBe(
+      "/repo/node_modules/.pnpm/x@1/node_modules/x",
+    );
+  });
+
+  it("reads Windows paths, with either slash", () => {
+    expect(packageRoot("C:/repo/node_modules/react/index.js")).toBe("C:/repo/node_modules/react");
+    expect(packageRoot("C:\\repo\\node_modules\\@scope\\pkg\\a.js")).toBe(
+      "C:/repo/node_modules/@scope/pkg",
+    );
   });
 
   it("ignores query strings and virtual-module markers", () => {
-    expect(packageRoot(`\0${nm}react${path.sep}index.js?commonjs-proxy`)).toBe(`${nm}react`);
+    expect(packageRoot("\0/repo/node_modules/react/index.js?commonjs-proxy")).toBe(
+      "/repo/node_modules/react",
+    );
   });
 
-  it("finds no package for the app's own code", () => {
-    expect(
-      packageRoot(`${path.sep}repo${path.sep}apps${path.sep}pdf${path.sep}src${path.sep}main.tsx`),
-    ).toBeUndefined();
+  it("finds no package for the app's own code, or a relative path", () => {
+    expect(packageRoot("/repo/apps/pdf/src/main.tsx")).toBeUndefined();
+    expect(packageRoot("dist/assets/x")).toBeUndefined();
   });
 });
 
@@ -84,6 +91,17 @@ describe("the licences file in a build", () => {
       "index.js": 'export function lazy() { return String(Math.random()) + "lazy"; }',
       "LICENSE.txt": "The lazy licence.",
     });
+    pkg("dual-lib", {
+      "package.json": JSON.stringify({
+        name: "dual-lib",
+        version: "4.0.0",
+        license: "MIT OR Apache-2.0",
+        main: "index.js",
+      }),
+      "index.js": 'export function dual() { return String(Math.random()) + "dual"; }',
+      "LICENSE-MIT": "The MIT half.",
+      "LICENSE-APACHE": "The Apache half.",
+    });
     pkg("unused-lib", {
       "package.json": JSON.stringify({ name: "unused-lib", version: "9.9.9", license: "GPL-3.0" }),
       "index.js": "export const unused = 1;",
@@ -103,7 +121,7 @@ describe("the licences file in a build", () => {
     );
     writeFileSync(
       path.join(root, "main.js"),
-      'import { value } from "bundled-lib";\ndocument.title = value();\nimport("@scope/lazy-lib").then((m) => console.log(m.lazy()));\n',
+      'import { value } from "bundled-lib";\nimport { dual } from "dual-lib";\ndocument.title = value() + dual();\nimport("@scope/lazy-lib").then((m) => console.log(m.lazy()));\n',
     );
     await build({
       root,
@@ -131,7 +149,33 @@ describe("the licences file in a build", () => {
     expect(text).toContain("@scope/lazy-lib@3.0.0\nLicense: ISC");
     expect(text).toContain("The lazy licence.");
     expect(text).toContain("the-sdk@0.1.0\nLicense: Apache-2.0");
+    expect(text).toContain("dual-lib@4.0.0\nLicense: MIT OR Apache-2.0");
+    expect(text).toContain("--- LICENSE-APACHE ---\n\nThe Apache half.");
+    expect(text).toContain("--- LICENSE-MIT ---\n\nThe MIT half.");
     expect(text).not.toContain("unused-lib");
-    expect(text).toContain("there are 3.");
+    expect(text).toContain("there are 4.");
+  });
+
+  it("lists the SDK whose assets it copies when the directory is given relatively", async () => {
+    const out = path.join(root, "dist-relative");
+    // As an app's config would give it: relative to the app's folder.
+    const cwd = process.cwd();
+    process.chdir(root);
+    try {
+      await build({
+        root,
+        logLevel: "silent",
+        configFile: false,
+        build: { outDir: out },
+        plugins: [
+          editorApp({
+            sdkAssets: { from: "node_modules/the-sdk/dist/assets", url: "/the-sdk/0.1.0/" },
+          }),
+        ],
+      });
+    } finally {
+      process.chdir(cwd);
+    }
+    expect(readFileSync(path.join(out, LICENSES_FILE), "utf8")).toContain("the-sdk@0.1.0");
   });
 });
