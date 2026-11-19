@@ -3,11 +3,18 @@ packages:
   - packages/*
 
 # One version of each shared tool for the whole repository (docs/adr/0001).
-# Packages refer to these with `catalog:`. An app's SDK, and the ui and
-# sdk-core versions that SDK needs, are pinned in the app's own package.json.
+# Packages refer to these with `catalog:`. ui and sdk-core are here too, one
+# version for every app, since app-shell runs on each app's copy; moving
+# them moves every app, and `pnpm check:single-copy` fails if an app strays.
+# A new 0.x minor also needs every app's SDK to accept it, and app-shell's
+# peer range moved with it (docs/adr/0001).
+# Each app's SDK stays pinned in the app's own package.json, so each app
+# moves its SDK on its own schedule, within the ui version set here.
 catalog:
   "@biomejs/biome": 2.6.8
   "@hussmartinez/sdk-config": 0.9.0
+  "@hussmartinez/sdk-core": 0.4.4
+  "@hussmartinez/ui": 0.15.0
   "@playwright/test": 1.65.1
   "@types/node": 24.19.2
   "@types/react": 19.3.0

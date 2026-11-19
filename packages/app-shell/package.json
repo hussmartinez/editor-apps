@@ -22,8 +22,8 @@
     "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@hussmartinez/sdk-core": "0.4.4",
-    "@hussmartinez/ui": "0.15.0",
+    "@hussmartinez/sdk-core": "catalog:",
+    "@hussmartinez/ui": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "happy-dom": "catalog:",
