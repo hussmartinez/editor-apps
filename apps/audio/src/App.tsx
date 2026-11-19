@@ -1,12 +1,16 @@
+import { AudioEditor } from "@hussmartinez/audio-sdk/react";
 import { AnnouncerProvider, Button, UiMessagesProvider } from "@hussmartinez/ui/react";
 import { Component, type ReactNode } from "react";
-import { TemporaryEditor } from "./editor/TemporaryEditor";
+import { analytics } from "./analytics.ts";
 import { messages } from "./messages";
 
 /**
- * The app's shell around the editor: the header, the one `<h1>`, the `<main>`
- * landmark, ui's providers and an error boundary. The theme is a static
- * stylesheet (theme.ts) that follows the system's light or dark mode.
+ * The app's shell around audio-sdk's `AudioEditor`: the header, the one
+ * `<h1>`, the `<main>` landmark, ui's providers and an error boundary. The
+ * editor's worker comes from the app's own origin (vite.config.ts), and its
+ * anonymous events go to the app's analytics (docs/adr/0005). The theme is
+ * a static stylesheet (theme.ts) that follows the system's light or dark
+ * mode.
  */
 export function App() {
   return (
@@ -19,7 +23,11 @@ export function App() {
           </header>
           <main className="app-main">
             <ErrorBoundary>
-              <TemporaryEditor />
+              <AudioEditor
+                className="app-editor"
+                assetsUrl={__SDK_ASSETS_URL__}
+                onEvent={analytics.editorEvent}
+              />
             </ErrorBoundary>
           </main>
         </div>

@@ -70,13 +70,20 @@ test("a recording opens and exports as a WAV file, with the SDK's worker from th
   const chooser = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: "Choose a file" }).click();
   await (await chooser).setFiles({ name: "tone.wav", mimeType: "audio/wav", buffer: recording() });
-  await expect(page.getByRole("slider", { name: "Playhead" })).toBeVisible();
 
-  const downloading = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Export WAV" }).click();
-  const download = await downloading;
-  expect(download.suggestedFilename()).toMatch(/\.wav$/);
-  const wav = await readFile(await download.path());
+  // The SDK's Export tool opens its export dialog, which writes the file.
+  const exportTool = page.getByRole("toolbar").getByRole("button", { name: "Export", exact: true });
+  await expect(exportTool).toBeEnabled({ timeout: 30_000 });
+  await exportTool.click();
+  const dialog = page.getByRole("dialog", { name: "Export" });
+  await dialog.getByRole("button", { name: "Export", exact: true }).click();
+  const download = dialog.getByRole("button", { name: "Download" });
+  await expect(download).toBeVisible({ timeout: 30_000 });
+  const saving = page.waitForEvent("download");
+  await download.click();
+  const saved = await saving;
+  expect(saved.suggestedFilename()).toMatch(/\.wav$/);
+  const wav = await readFile(await saved.path());
   expect(wav.toString("ascii", 0, 4)).toBe("RIFF");
   expect(wav.toString("ascii", 8, 12)).toBe("WAVE");
   expect(wav.length).toBeGreaterThan(44);

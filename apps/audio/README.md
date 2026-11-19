@@ -1,8 +1,8 @@
 # Audio editor
 
-Open a recording, cut and trim it, and export a WAV file, in the browser. Audio never leaves the device.
+Open recordings, edit them on tracks, and export a WAV file, in the browser. Audio never leaves the device.
 
-The app is a thin shell around [`@hussmartinez/audio-sdk`](https://github.com/ie-huss-martinez/audio-sdk), which decodes, edits, plays and exports.
+The app is a thin shell around [`@hussmartinez/audio-sdk`](https://github.com/ie-huss-martinez/audio-sdk): the SDK's `AudioEditor` opens, edits, plays and exports, with a toolbar, a timeline with a lane per track, the transport, an inspector and an export dialog. The app adds its header, theme, response headers, analytics and deployment.
 
 ## Analytics
 
@@ -22,13 +22,6 @@ And nothing else:
 
 The key is a public client key: it's in the built JavaScript by nature. It's set as a build variable in Workers Builds, never committed.
 
-## The editor is temporary
-
-audio-sdk publishes its headless core only so far: its React editor is designed, but not built. Until it ships, `src/editor/` holds a small editor of the app's own.
-
-- **It has no editing logic.** Every edit is a session command, playback is the SDK's output, and export is `session.export()`. The app only draws and wires.
-- **Don't grow it.** A missing feature belongs in the SDK's editor. When that ships, delete the folder and the `editor.` messages, and render the SDK's component in `src/App.tsx`.
-
 ## Develop
 
 From the repository's root, with Node 24:
@@ -39,7 +32,7 @@ pnpm --filter @editor-apps/audio build
 pnpm --filter @editor-apps/audio test:e2e    # needs the build, and Docker
 ```
 
-The smoke test checks what the app adds: its response headers, that the SDK's worker loads from the app's own origin, and that a recording opens and exports as a WAV file. Editing itself is the SDK's to test.
+The smoke test checks what the app adds: its response headers, that the SDK's worker loads from the app's own origin, and that a recording opens in the SDK's editor and exports through its dialog as a WAV file. Editing itself is the SDK's to test.
 
 ## History
 
