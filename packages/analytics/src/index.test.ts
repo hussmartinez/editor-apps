@@ -150,7 +150,6 @@ describe("sanitize", () => {
     );
     expect(result?.properties).toEqual({
       $current_url: "https://app.example/edit",
-      $initial_current_url: "https://app.example/",
       $pathname: "/edit",
       app: "video",
     });
@@ -174,6 +173,34 @@ describe("sanitize", () => {
       event: "$pageview",
       properties: { pageCount: 3, app: "pdf" },
     });
+  });
+
+  it("drops session-entry attribution and campaign parameters, which carry the query", () => {
+    const result = sanitize("image")(
+      event({
+        $session_entry_url: "https://app.example/?token=abc",
+        $session_entry_referrer: "https://other.example/?q=private",
+        $session_entry_referring_domain: "other.example",
+        $session_entry_utm_source: "newsletter",
+        $session_entry_gclid: "Cj0KCQ",
+        $initial_utm_campaign: "launch",
+        utm_source: "newsletter",
+        gclid: "Cj0KCQ",
+        fbclid: "IwAR",
+        $browser: "Chrome",
+        commands: ["image.rotate"],
+      }),
+    );
+    expect(result?.properties).toEqual({
+      $browser: "Chrome",
+      commands: ["image.rotate"],
+      app: "image",
+    });
+  });
+
+  it("cuts any other address to its path, whatever the property", () => {
+    const result = sanitize("audio")(event({ $somewhere_url: "https://app.example/x?y=1#z" }));
+    expect(result?.properties).toEqual({ $somewhere_url: "https://app.example/x", app: "audio" });
   });
 
   it("drops an address it can't parse rather than send it", () => {

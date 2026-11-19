@@ -41,7 +41,8 @@ test("a video opens and exports as a video file, with the SDK's workers from thi
   page,
   problems,
 }) => {
-  await page.goto("/");
+  // A query and a fragment, which analytics must never send.
+  await page.goto("/?smoke=private#fragment");
 
   const chooser = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: "Choose files" }).click();
@@ -70,7 +71,7 @@ test("a video opens and exports as a video file, with the SDK's workers from thi
   expect(video.byteLength).toBeGreaterThan(1_000);
 
   expectSdkAssets(problems, page, "@hussmartinez/video-sdk");
-  await expectAnalytics(problems, analytics);
+  await expectAnalytics(problems, analytics, appConfig.app);
 });
 
 /**

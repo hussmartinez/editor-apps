@@ -38,7 +38,8 @@ test("a PDF opens and downloads as a PDF file, with the SDK's assets from this o
   page,
   problems,
 }) => {
-  await page.goto("/");
+  // A query and a fragment, which analytics must never send.
+  await page.goto("/?smoke=private#fragment");
 
   await page
     .locator('input[type="file"]')
@@ -57,5 +58,5 @@ test("a PDF opens and downloads as a PDF file, with the SDK's assets from this o
   expect(pdf.byteLength).toBeGreaterThan(100);
 
   expectSdkAssets(problems, page, "@hussmartinez/pdf-sdk");
-  await expectAnalytics(problems, analytics);
+  await expectAnalytics(problems, analytics, appConfig.app);
 });

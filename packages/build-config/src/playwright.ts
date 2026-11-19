@@ -1,5 +1,6 @@
 import { createRequire } from "node:module";
 import path from "node:path";
+import { gunzipSync } from "node:zlib";
 import {
   test as base,
   defineConfig,
@@ -73,6 +74,8 @@ export interface Problems {
   readonly foreign: string[];
   /** Every request's URL, for asserting where an asset came from. */
   readonly requests: string[];
+  /** The requests to the analytics origins, answered in the browser, with their bodies. */
+  readonly analytics: { readonly url: string; readonly body: Buffer | null }[];
 }
 
 /** Options an app sets with `test.use()`. */
@@ -98,7 +101,7 @@ export const test = base.extend<SmokeTestOptions & { problems: Problems }>({
   analyticsOrigins: [[], { option: true }],
   problems: [
     async ({ page, baseURL, analyticsOrigins }, use) => {
-      const problems: Problems = { errors: [], foreign: [], requests: [] };
+      const problems: Problems = { errors: [], foreign: [], requests: [], analytics: [] };
       const own = new URL(baseURL ?? "http://127.0.0.1").origin;
       const analytics = new Set(analyticsOrigins.map((origin) => new URL(origin).origin));
       // Answering the app's own origin would answer its pages too.
@@ -116,7 +119,11 @@ export const test = base.extend<SmokeTestOptions & { problems: Problems }>({
         });
         await page.context().route(
           (url) => analytics.has(url.origin),
-          (route) => route.fulfill({ status: 204 }),
+          (route) => {
+            const request = route.request();
+            problems.analytics.push({ url: request.url(), body: request.postDataBuffer() });
+            return route.fulfill({ status: 204 });
+          },
         );
       }
       page.on("console", (message) => {
@@ -239,22 +246,69 @@ export function expectPolicyOrigins(
   expect([...named].sort(), `the sources in ${directive}`).toEqual([...origins].sort());
 }
 
+/** One analytics event, as PostHog's client sends it. */
+interface SentEvent {
+  readonly event: string;
+  readonly properties?: Record<string, unknown>;
+}
+
 /**
- * With analytics on, checks that the app sent at least its page view to
- * the analytics origin, which the fixture answered in the browser. Without
- * analytics there's nothing to check here: the fixture already fails on any
- * request to another origin.
+ * The events in one request PostHog's client sent: JSON, possibly
+ * base64-encoded in a `data` form field, possibly gzipped, holding one
+ * event, a list, or a `batch`.
+ */
+export function sentEvents(body: Buffer | null): SentEvent[] {
+  if (!body || body.length === 0) return [];
+  let bytes = body;
+  if (bytes[0] === 0x1f && bytes[1] === 0x8b) bytes = gunzipSync(bytes);
+  let text = bytes.toString("utf8");
+  if (!/^\s*[[{]/.test(text)) {
+    const data = new URLSearchParams(text).get("data");
+    if (!data) return [];
+    const decoded = Buffer.from(data, "base64");
+    text = (decoded[0] === 0x1f && decoded[1] === 0x8b ? gunzipSync(decoded) : decoded).toString(
+      "utf8",
+    );
+  }
+  const parsed = JSON.parse(text) as SentEvent | SentEvent[] | { batch: SentEvent[] };
+  if (Array.isArray(parsed)) return parsed;
+  if ("batch" in parsed) return parsed.batch;
+  return [parsed];
+}
+
+/**
+ * Checks what the app sent to its analytics origin, which the fixture
+ * answered in the browser (docs/adr/0005).
+ *
+ * - **Without analytics,** nothing at all went there.
+ * - **With analytics,** exactly one page view, every event tagged with the
+ *   app's name, and no address with a query string or fragment. The page's
+ *   own SDK events may come too.
+ *
+ * Call it at the end of a test, after the app has had time to send its
+ * events: it waits for the page view.
  *
  * @param origin - From {@link analyticsOriginUnderTest}.
+ * @param app - The app's name, as its configuration gives it.
  */
 export async function expectAnalytics(
   problems: Problems,
   origin: string | undefined,
+  app: string,
 ): Promise<void> {
-  if (!origin) return;
+  if (!origin) {
+    expect(problems.analytics, "requests to the analytics origin without a key").toEqual([]);
+    return;
+  }
+  const events = () => problems.analytics.flatMap(({ body }) => sentEvents(body));
+  const pageViews = () => events().filter(({ event }) => event === "$pageview");
   await expect
-    .poll(() => problems.requests.some((url) => url.startsWith(`${origin}/`)), {
-      message: `a request to ${origin}`,
-    })
-    .toBe(true);
+    .poll(() => pageViews().length, { message: "the page view", timeout: 15_000 })
+    .toBeGreaterThan(0);
+  expect(pageViews(), "page views per load").toHaveLength(1);
+  for (const { event, properties } of events()) {
+    expect(properties?.app, `the app of ${event}`).toBe(app);
+    const addresses = JSON.stringify(properties ?? {}).match(/https?:\/\/[^"]*/g) ?? [];
+    for (const address of addresses) expect(address, `an address in ${event}`).not.toMatch(/[?#]/);
+  }
 }

@@ -38,7 +38,8 @@ test("an image opens and exports as a PNG file, with the SDK's workers from this
   page,
   problems,
 }) => {
-  await page.goto("/");
+  // A query and a fragment, which analytics must never send.
+  await page.goto("/?smoke=private#fragment");
 
   const chooser = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: "Choose an image" }).first().click();
@@ -64,5 +65,5 @@ test("an image opens and exports as a PNG file, with the SDK's workers from this
   expect(pngSize(png)).toEqual({ width: 64, height: 48 });
 
   expectSdkAssets(problems, page, "@hussmartinez/image-sdk");
-  await expectAnalytics(problems, analytics);
+  await expectAnalytics(problems, analytics, appConfig.app);
 });

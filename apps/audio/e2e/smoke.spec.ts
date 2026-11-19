@@ -62,7 +62,8 @@ test("a recording opens and exports as a WAV file, with the SDK's worker from th
   page,
   problems,
 }) => {
-  await page.goto("/");
+  // A query and a fragment, which analytics must never send.
+  await page.goto("/?smoke=private#fragment");
 
   const chooser = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: "Choose a file" }).click();
@@ -79,5 +80,5 @@ test("a recording opens and exports as a WAV file, with the SDK's worker from th
   expect(wav.length).toBeGreaterThan(44);
 
   expectSdkAssets(problems, page, "@hussmartinez/audio-sdk");
-  await expectAnalytics(problems, analytics);
+  await expectAnalytics(problems, analytics, appConfig.app);
 });

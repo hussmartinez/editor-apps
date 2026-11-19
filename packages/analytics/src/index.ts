@@ -51,8 +51,18 @@ export function pathOnly(url: string): string {
   }
 }
 
-/** Properties PostHog adds that could hold another site's address. */
-const DROPPED = /^\$(initial_)?(referrer|referring_domain)$/;
+/**
+ * Properties never sent: referrers, the first page and campaign of a person
+ * or session (`$initial_…`, `$session_entry_…`, which PostHog adds whatever
+ * `save_referrer` and `save_campaign_params` say), and campaign parameters
+ * such as `utm_source` or `gclid`, which come from the page's query string.
+ */
+const DROPPED = [
+  /^\$(initial_|session_entry_)/,
+  /^\$(referrer|referring_domain)$/,
+  /(^|_)utm_/,
+  /^(gclid|gclsrc|gad_source|gbraid|wbraid|dclid|fbclid|msclkid|twclid|ttclid|li_fat_id|igshid|mc_cid|rdt_cid|epik|qclid|sccid|irclid|_kx)$/,
+];
 
 /**
  * Applied to every event before it's sent: only the path of the page's
@@ -61,12 +71,13 @@ const DROPPED = /^\$(initial_)?(referrer|referring_domain)$/;
 export function sanitize(app: string): BeforeSendFn {
   return (result) => {
     const properties: Record<string, unknown> = { ...result.properties, app };
-    for (const key of Object.keys(properties)) {
-      if (DROPPED.test(key)) delete properties[key];
-    }
-    for (const key of ["$current_url", "$initial_current_url"]) {
-      const value = properties[key];
-      if (typeof value === "string") properties[key] = pathOnly(value);
+    for (const [key, value] of Object.entries(properties)) {
+      if (DROPPED.some((pattern) => pattern.test(key))) {
+        delete properties[key];
+      } else if (typeof value === "string" && /^https?:\/\//.test(value)) {
+        // Any address left, such as $current_url, goes as its path only.
+        properties[key] = pathOnly(value);
+      }
     }
     const { $set: _set, $set_once: _setOnce, $unset: _unset, ...rest } = result;
     return { ...rest, properties };
