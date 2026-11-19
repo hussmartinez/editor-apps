@@ -1,0 +1,73 @@
+/* The shell around the editor, in ui's tokens only. */
+html,
+body,
+#root {
+  block-size: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--hm-font-family);
+  color: var(--hm-color-text);
+  background: var(--hm-color-bg);
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  block-size: 100%;
+}
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--hm-gap-normal) var(--hm-gap-loose);
+  padding: var(--hm-inset-normal) var(--hm-inset-loose);
+  border-block-end: var(--hm-border-width) solid var(--hm-color-border);
+}
+
+.app-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--hm-gap-normal);
+  margin: 0;
+  font-size: var(--hm-font-size-title);
+  font-weight: var(--hm-font-weight-strong);
+  line-height: var(--hm-line-height-tight);
+}
+
+.app-mark {
+  font-weight: 700;
+  letter-spacing: -0.08em;
+}
+
+.app-mark span {
+  padding-inline: 0.1em;
+  color: var(--hm-color-accent-text);
+}
+
+.app-tagline {
+  margin: 0;
+  font-size: var(--hm-font-size-small);
+  color: var(--hm-color-text-muted);
+}
+
+.app-main {
+  flex: 1;
+  min-block-size: 0;
+  padding: var(--hm-inset-normal);
+}
+
+.app-editor {
+  block-size: 100%;
+}
+
+.app-crash {
+  max-inline-size: 36rem;
+  margin: var(--hm-inset-loose) auto;
+}
+
+.app-crash h2 {
+  font-size: var(--hm-font-size-title);
+}
