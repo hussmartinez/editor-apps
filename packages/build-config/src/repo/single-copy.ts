@@ -36,7 +36,13 @@ export function duplicateCopies(lockfile: string, importer: string): Record<stri
   // pnpm writes two documents: one for the package manager itself, then the
   // project's. The project's is the one with the importer.
   const lock = parseAllDocuments(lockfile)
-    .map((document) => document.toJS() as Lockfile | null)
+    .map((document) => {
+      // Unlike parse(), parseAllDocuments() keeps errors instead of throwing,
+      // and toJS() would quietly use whatever it could read.
+      const [error] = document.errors;
+      if (error) throw new Error(`pnpm-lock.yaml can't be read: ${error.message}`);
+      return document.toJS() as Lockfile | null;
+    })
     .find((candidate) => candidate?.importers?.[importer]);
   const root = lock?.importers?.[importer];
   if (!lock || !root) throw new Error(`pnpm-lock.yaml has no importer ${importer}.`);

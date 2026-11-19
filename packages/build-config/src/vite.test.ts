@@ -87,7 +87,7 @@ describe("editorApp", () => {
       const worker = await fetch(`${base}/sdk/1.2.3/workers/worker.js`);
       expect(await worker.text()).toBe("// a worker");
       expect(worker.headers.get("content-type")).toBe("text/javascript");
-      const outside = await fetch(`${base}/sdk/1.2.3/..%2F..%2Fmain.js`);
+      const outside = await fetch(`${base}/sdk/1.2.3/..%2Fmain.js`);
       expect(await outside.text()).not.toContain("document.title");
     } finally {
       await server.close();

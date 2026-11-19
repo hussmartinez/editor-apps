@@ -67,8 +67,8 @@ export interface Problems {
 /**
  * Playwright's `test`, with a `problems` fixture that every test gets
  * whether it asks or not: it records console errors, uncaught errors,
- * Content Security Policy violations, failed responses and requests to
- * another origin, and fails the test if there were any.
+ * Content Security Policy violations, HTTP errors, failed requests and
+ * requests to another origin, and fails the test if there were any.
  *
  * A test that expects one, such as an analytics request, removes it from
  * `problems` before it ends.
@@ -82,10 +82,19 @@ export const test = base.extend<{ problems: Problems }>({
         if (message.type() === "error") problems.errors.push(`console: ${message.text()}`);
       });
       page.on("pageerror", (error) => problems.errors.push(`uncaught: ${error.message}`));
+      // An HTTP error completes as a response; a transport failure, such as
+      // a blocked or reset request, emits only requestfailed.
       page.on("response", (response) => {
         if (response.status() >= 400) {
           problems.errors.push(`${response.status()} ${response.url()}`);
         }
+      });
+      page.on("requestfailed", (request) => {
+        const url = request.url();
+        // A blob: or data: URL never touches the network: a download from
+        // one may be reported as aborted once the browser takes it over.
+        if (/^(blob|data):/.test(url)) return;
+        problems.errors.push(`failed: ${url} ${request.failure()?.errorText ?? "unknown error"}`);
       });
       page.on("request", (request) => {
         const url = request.url();

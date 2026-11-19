@@ -94,6 +94,14 @@ describe("duplicateCopies", () => {
     });
   });
 
+  it("rejects a lockfile with a YAML error, rather than reading part of it", () => {
+    // A second snapshots mapping is a duplicate key: read leniently, it would
+    // replace the first and hide apps/broken's second ui.
+    expect(() => duplicateCopies(`${lockfile}snapshots: {}\n`, "apps/broken")).toThrow(
+      /can't be read/,
+    );
+  });
+
   it("fails for an app the lockfile doesn't have", () => {
     expect(() => duplicateCopies(lockfile, "apps/missing")).toThrow(/no importer apps\/missing/);
   });
