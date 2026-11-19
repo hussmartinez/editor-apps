@@ -1,9 +1,10 @@
 /**
  * Fails when an app would bundle two versions of an SDK-family package or
- * of React (docs/adr/0001). Run it from the repository's root.
+ * of React, or when the apps bundle different versions of ui or sdk-core
+ * (docs/adr/0001). Run it from the repository's root.
  */
 import { readFileSync } from "node:fs";
-import { duplicateCopies } from "../repo/single-copy.ts";
+import { differentAcrossApps, duplicateCopies } from "../repo/single-copy.ts";
 import { listApps } from "./apps.ts";
 
 const apps = listApps();
@@ -19,4 +20,20 @@ if (failed) {
   process.stderr.write("Each app needs one version of each. Align the app's pins with its SDK.\n");
   process.exit(1);
 }
-process.stdout.write(`One copy of each shared package in ${apps.length} app(s).\n`);
+const differences = differentAcrossApps(
+  lockfile,
+  apps.map((app) => `apps/${app}`),
+);
+for (const [name, byApp] of Object.entries(differences)) {
+  const list = Object.entries(byApp).map(([app, version]) => `${app} ${version}`);
+  process.stderr.write(`The apps bundle different versions of ${name}: ${list.join(", ")}.\n`);
+}
+if (Object.keys(differences).length > 0) {
+  process.stderr.write(
+    "Every app needs the same ui and sdk-core, which app-shell runs on. Move them together.\n",
+  );
+  process.exit(1);
+}
+process.stdout.write(
+  `One copy of each shared package in ${apps.length} app(s), and one ui and sdk-core for all.\n`,
+);

@@ -41,6 +41,7 @@ After the imports, the reviewer points each Worker's Workers Builds connection a
 
 ## One ui version for every app
 
-Each app installs the ui version its SDK needs, and today those differ: the pdf, image and video SDKs each require a different `0.x` minor. One copy per app is the rule; one version for the repository is the aim (ADR 0001).
+Done on 2026-11-19: every app bundles ui 0.15.0 and sdk-core 0.4.4, and `pnpm check:single-copy` fails if the apps ever differ (ADR 0001).
 
-- [ ] **When the SDKs converge on one ui minor,** move ui and sdk-core into the pnpm catalog, and drop the limit that `app-shell` may use only what the oldest ui has. The SDKs' maintainers are moving them to the current minor. It doesn't block the steps above.
+- [x] **The SDKs converge on one ui minor,** and `app-shell` may use all of it.
+- [ ] **Maybe move ui and sdk-core into the pnpm catalog,** so a single line sets them for every app. The check already enforces one version; the catalog would only save editing four `package.json` files.

@@ -11,13 +11,26 @@ import { appConfig } from "./app.config.ts";
 
 /**
  * What video-sdk's events mean for the leave guard (docs/adr/0002): any
- * edit, adding clips included, arms it, and an export clears it. Failed
- * and cancelled steps change nothing. The export event comes when the file
- * is ready in the export dialog, before its Download button is pressed.
+ * edit, adding clips included, arms it; opening a file in place of
+ * everything, which clears the history, and an export clear it. Failed and
+ * cancelled steps change nothing. The export event comes when the file is
+ * ready in the export dialog, before its Download button is pressed. A new
+ * event type fails to type-check here until it's placed.
  */
 const unsavedAfter: UnsavedAfter<VideoSessionEvent> = ({ type, outcome }) => {
   if (outcome !== "done") return undefined;
-  return type !== "export";
+  switch (type) {
+    case "insert":
+    case "execute":
+    case "undo":
+    case "redo":
+      return true;
+    case "open":
+    case "export":
+      return false;
+    default:
+      return type satisfies never;
+  }
 };
 
 /**

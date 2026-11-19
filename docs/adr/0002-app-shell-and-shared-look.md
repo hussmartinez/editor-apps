@@ -90,8 +90,8 @@ Huss approved the leave guard as follows. It refines "The leave guard" above.
 | pdf   | `pages_inserted`, `command`, `undo`, `redo`      | `document_opened`, `document_exported`, `document_closed`    |
 | audio | `recording_inserted`, `command`, `undo`, `redo`  | `recording_opened`, `recording_exported`, `recording_closed` |
 | image | `insert`, `execute`, `undo`, `redo`, when `done` | `open`, `export`, when `done`                                |
-| video | `insert`, `execute`, `undo`, `redo`, when `done` | `export`, when `done`                                        |
+| video | `insert`, `execute`, `undo`, `redo`, when `done` | `open`, `export`, when `done`                                |
 
 - **A known gap: exported, but not downloaded.** pdf saves the file as soon as it's built, so its event means the file is saved. Image, audio and video build the file in their export dialog and then wait for its Download button, and their event comes when the file is built. If a person exports and then leaves without pressing Download, the guard doesn't ask. The gap is narrow, since the dialog stays open with the button in view, and accepted. The apps don't take over the download to close it. When those SDKs report that a file was saved, the apps clear the guard on that event instead.
-- **Video arms the guard as soon as a clip is added,** since adding clips is how a video is made, and video-sdk has no event for opening a file.
+- **Video arms the guard as soon as a clip is added,** since adding clips is how a video is made. Opening a file in place of everything, with video-sdk 0.5's `open`, clears it, as audio's does, since it clears the history too. Its mapping is an exhaustive `switch`, so a new event type fails to type-check until it's placed. (Corrected 2026-11-19, with video-sdk 0.5.0: before it, video-sdk had no `open` event.)
 - **Tests:** the shell's unit tests check the guard and `useEditorEvents` with a cancelable `beforeunload`; each app's round trip checks the guard is off after opening, on after an edit, and off after the export, in every browser it's tested in.

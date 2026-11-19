@@ -29,14 +29,14 @@ pnpm verify
 
 `pnpm verify` runs everything CI runs without a browser:
 
-| Step                                        | Script                        |
-| ------------------------------------------- | ----------------------------- |
-| Format and lint, with Biome                 | `pnpm lint`                   |
-| Types                                       | `pnpm typecheck`              |
-| Unit tests, with Vitest                     | `pnpm test`                   |
-| One copy of each shared package in each app | `pnpm check:single-copy`      |
-| No domain outside app configuration         | `pnpm check:domains`          |
-| Playwright pinned to the image's version    | `pnpm check:playwright-image` |
+| Step                                                                              | Script                        |
+| --------------------------------------------------------------------------------- | ----------------------------- |
+| Format and lint, with Biome                                                       | `pnpm lint`                   |
+| Types                                                                             | `pnpm typecheck`              |
+| Unit tests, with Vitest                                                           | `pnpm test`                   |
+| One copy of each shared package in each app, and one ui and sdk-core for all apps | `pnpm check:single-copy`      |
+| No domain outside app configuration                                               | `pnpm check:domains`          |
+| Playwright pinned to the image's version                                          | `pnpm check:playwright-image` |
 
 CI also builds each app a change affects, checks that it would deploy, and runs its smoke test in the pinned image. `pnpm affected <base>` prints which apps those are. To run an app's smoke test locally, build it, then run `pnpm --filter @editor-apps/<app> test:e2e`, which needs Docker.
 

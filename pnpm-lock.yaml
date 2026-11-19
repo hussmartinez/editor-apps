@@ -392,11 +392,11 @@ importers:
         specifier: 0.4.4
         version: 0.4.4
       '@hussmartinez/ui':
-        specifier: 0.14.4
-        version: 0.14.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.15.0
+        version: 0.15.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@hussmartinez/video-sdk':
-        specifier: 0.4.0
-        version: 0.4.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.5.0
+        version: 0.5.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react:
         specifier: 'catalog:'
         version: 19.3.1
@@ -458,8 +458,8 @@ importers:
         specifier: 0.4.4
         version: 0.4.4
       '@hussmartinez/ui':
-        specifier: 0.11.0
-        version: 0.11.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.15.0
+        version: 0.15.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@types/react':
         specifier: 'catalog:'
         version: 19.3.0
@@ -884,28 +884,6 @@ packages:
   '@hussmartinez/sdk-core@0.4.4':
     resolution: {integrity: sha512-WT8DUW1MTWk2mbMhF2uTBb4dYI1AFuBMAW8rI4ADtLi2zr+OsN5aSErmHUlrMNmqjw963PyPIPDd4dvDxw2VuQ==}
 
-  '@hussmartinez/ui@0.11.0':
-    resolution: {integrity: sha512-jkEbKqbb5D+aMi3eOv985ERjcNxoJTSS8pdZPK4i39kcvCHmj2Etso8sPuXZnZwgCfKHtfXe9d7aKcsxZYxdUg==}
-    peerDependencies:
-      react: '>=18.3'
-      react-dom: '>=18.3'
-    peerDependenciesMeta:
-      react:
-        optional: true
-      react-dom:
-        optional: true
-
-  '@hussmartinez/ui@0.14.4':
-    resolution: {integrity: sha512-hC4LOU400GEI9oGj+RHRqjharz+PaFfA6MntZeS11ndwL6OZcpyuu55s+lQH4julV0z+nOZ1wFohaM8FkaSuTQ==}
-    peerDependencies:
-      react: '>=18.3'
-      react-dom: '>=18.3'
-    peerDependenciesMeta:
-      react:
-        optional: true
-      react-dom:
-        optional: true
-
   '@hussmartinez/ui@0.15.0':
     resolution: {integrity: sha512-oPjEBrdZKRfL74mNQIC76WXw/qCGC2mDsc9r48e/nmA9mWSDc2GjnixNmNPey8loSqNfFFUxHToHmzsaNlT8yw==}
     peerDependencies:
@@ -917,8 +895,8 @@ packages:
       react-dom:
         optional: true
 
-  '@hussmartinez/video-sdk@0.4.0':
-    resolution: {integrity: sha512-/XGOs87nC++ZJqXJlMKzIbMyevxlcs6N9hh8m/2Z2z35ALg0aXzVa0rJ8+l4MRiJ/R+64Fs2UfTsQMy9J8735Q==}
+  '@hussmartinez/video-sdk@0.5.0':
+    resolution: {integrity: sha512-vanXddyLY15hdNAOuQtpeQzS48O0OvI2e9E7ZGPlBABDHbg0HJ9LfD/3yWeqtTI2SBiqDMA76tcYYoVNafIWGA==}
     engines: {node: '>=24'}
     peerDependencies:
       react: '>=18.3'
@@ -1996,20 +1974,6 @@ snapshots:
 
   '@hussmartinez/sdk-core@0.4.4': {}
 
-  '@hussmartinez/ui@0.11.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
-    dependencies:
-      '@hussmartinez/sdk-core': 0.4.4
-    optionalDependencies:
-      react: 19.3.1
-      react-dom: 19.3.1(react@19.3.1)
-
-  '@hussmartinez/ui@0.14.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
-    dependencies:
-      '@hussmartinez/sdk-core': 0.4.4
-    optionalDependencies:
-      react: 19.3.1
-      react-dom: 19.3.1(react@19.3.1)
-
   '@hussmartinez/ui@0.15.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@hussmartinez/sdk-core': 0.4.4
@@ -2017,10 +1981,10 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
-  '@hussmartinez/video-sdk@0.4.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@hussmartinez/video-sdk@0.5.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@hussmartinez/sdk-core': 0.4.4
-      '@hussmartinez/ui': 0.14.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@hussmartinez/ui': 0.15.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
     optionalDependencies:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
