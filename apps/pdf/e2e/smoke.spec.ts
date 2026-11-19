@@ -3,6 +3,7 @@ import {
   analyticsOriginUnderTest,
   expect,
   expectAnalytics,
+  expectLeavePrompt,
   expectPolicyOrigins,
   expectSdkAssets,
   expectSecurityHeaders,
@@ -60,6 +61,8 @@ test("a PDF opens, is edited and downloads, guarded until then, with the SDK's a
     .getByRole("button", { name: "Rotate right" })
     .click();
   await expect.poll(() => leavingAsks(page)).toBe(true);
+  // The browser's own prompt, once: dismissing it keeps the page and the edit.
+  await expectLeavePrompt(page);
 
   const saving = page.waitForEvent("download");
   await page
