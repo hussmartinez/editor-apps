@@ -19,7 +19,7 @@ One pull request per app, each as one import commit that names the private repos
 - [x] **audio** (2026-11-19)
 - [x] **video** (2026-11-19)
 - [x] **image** (2026-11-19)
-- [ ] **pdf**
+- [x] **pdf** (2026-11-19)
 
 For each app:
 

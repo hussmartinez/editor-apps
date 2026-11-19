@@ -82,21 +82,22 @@ export const test = base.extend<{ problems: Problems }>({
         if (message.type() === "error") problems.errors.push(`console: ${message.text()}`);
       });
       page.on("pageerror", (error) => problems.errors.push(`uncaught: ${error.message}`));
+      // On the context, not the page, so the SDK's workers' requests count too.
       // An HTTP error completes as a response; a transport failure, such as
       // a blocked or reset request, emits only requestfailed.
-      page.on("response", (response) => {
+      page.context().on("response", (response) => {
         if (response.status() >= 400) {
           problems.errors.push(`${response.status()} ${response.url()}`);
         }
       });
-      page.on("requestfailed", (request) => {
+      page.context().on("requestfailed", (request) => {
         const url = request.url();
         // A blob: or data: URL never touches the network: a download from
         // one may be reported as aborted once the browser takes it over.
         if (/^(blob|data):/.test(url)) return;
         problems.errors.push(`failed: ${url} ${request.failure()?.errorText ?? "unknown error"}`);
       });
-      page.on("request", (request) => {
+      page.context().on("request", (request) => {
         const url = request.url();
         problems.requests.push(url);
         if (!/^(blob|data):/.test(url) && new URL(url).origin !== own) problems.foreign.push(url);
