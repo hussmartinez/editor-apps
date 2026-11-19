@@ -1,6 +1,7 @@
 {
   "name": "@editor-apps/build-config",
   "private": true,
+  "license": "Apache-2.0",
   "type": "module",
   "description": "Build and test helpers shared by the apps: the response headers, the Vite preset and the repository's own checks. Never published, and never in a bundle.",
   "exports": {
