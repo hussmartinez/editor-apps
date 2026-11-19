@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { build } from "vite";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { LICENSES_FILE, licensesText, packageRoot } from "./licenses.ts";
+import { bundledTwice, LICENSES_FILE, licensesText, packageRoot } from "./licenses.ts";
 import { editorApp } from "./vite.ts";
 
 describe("packageRoot", () => {
@@ -36,6 +36,24 @@ describe("packageRoot", () => {
   it("finds no package for the app's own code, or a relative path", () => {
     expect(packageRoot("/repo/apps/pdf/src/main.tsx")).toBeUndefined();
     expect(packageRoot("dist/assets/x")).toBeUndefined();
+  });
+});
+
+describe("bundledTwice", () => {
+  it("names a family package or React bundled in two versions", () => {
+    expect(
+      bundledTwice([
+        { name: "@hussmartinez/ui", version: "0.14.4" },
+        { name: "@hussmartinez/ui", version: "0.11.0" },
+        { name: "react", version: "19.3.1" },
+        { name: "posthog-js", version: "1.0.0" },
+        { name: "posthog-js", version: "2.0.0" },
+      ]),
+    ).toEqual(["@hussmartinez/ui (0.11.0, 0.14.4)"]);
+  });
+
+  it("accepts one version of each", () => {
+    expect(bundledTwice([{ name: "react", version: "19.3.1" }])).toEqual([]);
   });
 });
 

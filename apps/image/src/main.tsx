@@ -1,59 +1,35 @@
+// ui's stylesheet first, then the SDK's, then the brand theme and the shell's.
 import "@hussmartinez/ui/styles.css";
 import "@hussmartinez/image-sdk/styles.css";
 import "virtual:theme.css";
-import "./styles.css";
+import "@editor-apps/app-shell/styles.css";
+import { AppShell, startApp, useAnalytics } from "@editor-apps/app-shell";
 import { ImageEditor } from "@hussmartinez/image-sdk/react";
-import { StrictMode, useState } from "react";
-import { createRoot } from "react-dom/client";
-import { analytics } from "./analytics.ts";
-import { ErrorBoundary } from "./ErrorBoundary";
+import { appConfig } from "./app.config.ts";
 
-analytics.pageView();
-
+/**
+ * image-sdk's `ImageEditor` in the shared shell (docs/adr/0002). Its
+ * workers come from the app's own origin (vite.config.ts), and its
+ * anonymous events go to the app's analytics (docs/adr/0005).
+ */
 function App() {
-  // A new key remounts the editor, which recreates the SDK's engine, processor and session.
-  const [editorKey, setEditorKey] = useState(0);
-  const [hasImage, setHasImage] = useState(false);
-  const restart = () => {
-    setHasImage(false);
-    setEditorKey((key) => key + 1);
-  };
-
+  const analytics = useAnalytics();
   return (
-    <div className="app">
-      <header className="app-header">
-        <div>
-          <p className="app-eyebrow">Browser darkroom</p>
-          <h1>Image editor</h1>
-        </div>
-        <p className="app-status">
-          {hasImage
-            ? "Your edits stay on this device until you export."
-            : "Open an image to crop, rotate, adjust and export it. Nothing is uploaded."}
-        </p>
-      </header>
-      <main className="app-main">
-        <ErrorBoundary onReset={restart}>
-          <ImageEditor
-            key={editorKey}
-            className="app-editor"
-            assetsUrl={__SDK_ASSETS_URL__}
-            onChange={() => setHasImage(true)}
-            onEvent={analytics.editorEvent}
-          />
-        </ErrorBoundary>
-      </main>
-    </div>
+    <AppShell title={appConfig.title} tagline={appConfig.tagline}>
+      <ImageEditor
+        className="app-editor"
+        assetsUrl={__SDK_ASSETS_URL__}
+        onEvent={analytics.editorEvent}
+      />
+    </AppShell>
   );
 }
 
-// React logs every error a boundary catches to the console by default. The
-// boundary records nothing, because an error can carry text from the image's
-// metadata, so the root records nothing either.
-createRoot(document.getElementById("root") as HTMLElement, {
-  onCaughtError: () => {},
-}).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+startApp({
+  app: appConfig.app,
+  analytics: {
+    key: import.meta.env.VITE_POSTHOG_KEY,
+    host: import.meta.env.VITE_POSTHOG_HOST || appConfig.analyticsHost,
+  },
+  render: () => <App />,
+});

@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import type { Plugin } from "vite";
+import { mustBeSingle } from "./repo/single-copy.ts";
 
 /** The file each build gets, at the root of the site. */
 export const LICENSES_FILE = "third-party-licenses.txt";
@@ -110,6 +111,15 @@ export function thirdPartyLicenses(extraPackages: readonly string[] = []): Plugi
         const pkg = describe(root);
         if (pkg) packages.set(`${pkg.name}@${pkg.version}`, pkg);
       }
+      // The bundle itself, not only the lockfile, must hold one copy of each
+      // (docs/adr/0001): a workspace package can pull in its own.
+      const duplicates = bundledTwice(packages.values());
+      if (duplicates.length > 0) {
+        this.error(
+          `The build bundles more than one copy of ${duplicates.join("; ")}. ` +
+            "Each must be one version per app: check editorApp's resolve.dedupe.",
+        );
+      }
       this.emitFile({
         type: "asset",
         fileName: LICENSES_FILE,
@@ -117,4 +127,21 @@ export function thirdPartyLicenses(extraPackages: readonly string[] = []): Plugi
       });
     },
   };
+}
+
+/**
+ * The SDK-family packages and React that a build bundles in more than one
+ * version, as `name (1.0.0, 2.0.0)`. Two copies of ui or React in one page
+ * break their providers and hooks.
+ */
+export function bundledTwice(packages: Iterable<{ name: string; version: string }>): string[] {
+  const versions = new Map<string, Set<string>>();
+  for (const { name, version } of packages) {
+    if (!mustBeSingle(name)) continue;
+    versions.set(name, (versions.get(name) ?? new Set()).add(version));
+  }
+  return [...versions]
+    .filter(([, found]) => found.size > 1)
+    .map(([name, found]) => `${name} (${[...found].sort().join(", ")})`)
+    .sort();
 }

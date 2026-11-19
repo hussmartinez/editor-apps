@@ -14,6 +14,9 @@ export const appConfig = {
   engines: ["chromium", "firefox", "webkit"] satisfies Engine[],
   /** The app's name, which every analytics event carries as `app` (docs/adr/0005). */
   app: "pdf",
+  /** The app's name, the page's one `<h1>`, and the line under it. */
+  title: "PDF Editor",
+  tagline: "Edit PDFs in your browser. Files never leave this device.",
   /** Where analytics events go when the build has a key (docs/adr/0005). */
   analyticsHost: "https://eu.i.posthog.com",
 } as const;

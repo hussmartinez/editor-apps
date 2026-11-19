@@ -13,7 +13,7 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "@editor-apps/analytics": "workspace:*",
+    "@editor-apps/app-shell": "workspace:*",
     "@hussmartinez/pdf-sdk": "0.4.2",
     "@hussmartinez/sdk-core": "0.4.4",
     "@hussmartinez/ui": "0.11.0",

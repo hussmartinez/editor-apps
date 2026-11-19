@@ -33,10 +33,9 @@ After the imports, the reviewer points each Worker's Workers Builds connection a
 
 ## Then
 
-- [ ] **`packages/app-shell`:** the shared page, theme, error boundary and messages in all four apps, with screenshot tests (ADR 0002).
-- [ ] **The analytics adapter** (ADR 0005). The pdf app keeps PostHog; the others send nothing until the owner chooses.
-- [ ] **The leave guard:** a warning before leaving with unsaved edits.
-- [ ] **The ad frame** (ADR 0006), when ads start. It needs a domain on a separate site first.
+- [x] **`packages/app-shell`:** the shared page, error boundary and messages in all four apps, with screenshot tests of its header (ADR 0002).
+- [ ] **The leave guard,** in the shell: the browser's own warning before leaving with unsaved edits.
+- [ ] **The ad slot,** in the shell: a fixed-size placeholder now; the isolated frame of ADR 0006 when ads start, which needs a domain on a separate site first.
 
 ## One ui version for every app
 

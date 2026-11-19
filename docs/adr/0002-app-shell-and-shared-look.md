@@ -1,6 +1,6 @@
 # 0002. One app shell, so the four apps look and behave alike
 
-- **Status:** Accepted
+- **Status:** Accepted, amended 2026-11-19
 - **Date:** 2026-11-18
 
 ## Context
@@ -62,3 +62,16 @@ Screenshot tests of the shell, in light and dark, run for every app against its 
 - **Shell features are built once,** and an app gets them by upgrading nothing.
 - **A shell bug is in four apps at once,** so shell changes get the fuller review tier and the screenshot tests.
 - **An app can't restyle its page freely.** A need that the shell doesn't cover becomes a shell option, or a new record.
+
+## Amendment, 2026-11-19: the shell as built
+
+Huss approved building the shell with these changes to the decision above. Where they differ, this section wins.
+
+- **Each app keeps its own brand theme.** Its `theme.ts` and `virtual:theme.css` stay in the app; the shell styles itself with ui's tokens only, so each brand and light or dark mode apply. One shared theme is no longer the aim. An app keeps only its theme, its `app.config.ts` (now with `title` and `tagline`) and its SDK's editor.
+- **The entry is `startApp`.** It creates the app's analytics ([ADR 0005](0005-analytics-and-consent.md)), sends the one page view, and renders the app with the analytics in context. The app's `App` passes `useAnalytics().editorEvent` to its editor's `onEvent`. `packages/analytics` stays a package of its own, which the shell depends on.
+- **The error boundary:** React logs the caught error to the local console, which is what a person needs to report a bug. Its text is never sent anywhere, because it can carry text from the file. Analytics gets one anonymous `component_error` event, with no message or stack, so crashes can be counted. Image's silent `onCaughtError` is gone.
+- **An optional status line** in the header, as an `<output>`, for live text about the open document such as pdf's name and page count. File names are rendered only as text.
+- **No footer yet.** Nothing needs one; the ad slot comes with its own record.
+- **Screenshot tests cover the shell's header only,** in light and dark, in Chromium in the pinned image, with `expectShellLook` from build-config, which also checks that the skip link reaches the editor. Comparing the whole page would make every SDK upgrade, Dependabot's included, change four sets of screenshots. The error boundary is covered by the shell's unit tests, since a built app has no way to crash on purpose.
+- **One copy of React, ui and sdk-core per bundle,** not only per lockfile. A workspace package resolves its own development copies, so `editorApp` sets Vite's `resolve.dedupe` for them, and the build fails if it bundles two versions of any family package or React.
+- **The visual change is deliberate:** every app gets the same compact header, with the app's name, its tagline and an optional status. Video loses its mark, image its eyebrow and changing status, and pdf its eyebrow, serif title and narrow masthead. The editors keep their own look; the space around them is now the same in every app.

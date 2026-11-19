@@ -63,6 +63,9 @@ export function editorApp(options: EditorAppOptions = {}): Plugin[] {
   const app: Plugin = {
     name: "editor-apps:app",
     config: () => ({
+      // One copy of each, from the app: the shell is a workspace package,
+      // whose own node_modules would otherwise hold a second ui or React.
+      resolve: { dedupe: ["react", "react-dom", "@hussmartinez/ui", "@hussmartinez/sdk-core"] },
       preview: { headers },
       // Where the app passes as its SDK's `assetsUrl`. Empty without assets.
       define: { __SDK_ASSETS_URL__: JSON.stringify(assets?.url ?? "") },

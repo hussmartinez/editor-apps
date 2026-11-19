@@ -6,6 +6,7 @@ import {
   expectPolicyOrigins,
   expectSdkAssets,
   expectSecurityHeaders,
+  expectShellLook,
   expectThirdPartyLicenses,
   test,
 } from "@editor-apps/build-config/playwright";
@@ -90,4 +91,10 @@ test("a recording opens and exports as a WAV file, with the SDK's worker from th
 
   expectSdkAssets(problems, page, "@hussmartinez/audio-sdk");
   await expectAnalytics(problems, analytics, appConfig.app);
+});
+
+test("the shell looks as committed, in light and dark, and skips to the editor", async ({
+  page,
+}) => {
+  await expectShellLook(page);
 });
