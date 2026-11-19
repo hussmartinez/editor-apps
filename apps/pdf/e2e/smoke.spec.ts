@@ -32,7 +32,8 @@ function analyticsOrigin(): string | undefined {
 // violation, a failed response or a request to another origin. The local
 // build has no analytics key, so it sends nothing. A deployment may have
 // one: its events are answered in the browser, and never reach the provider.
-test.use({ analyticsOrigins: [appConfig.analyticsHost] });
+// The same origin the header test expects, which may be a custom host.
+test.use({ analyticsOrigins: [analyticsOrigin() ?? appConfig.analyticsHost] });
 
 test("the page is served with its headers, and has the shell's landmarks", async ({ page }) => {
   const response = await page.goto("/");
