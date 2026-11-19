@@ -273,6 +273,55 @@ importers:
         specifier: 'catalog:'
         version: 4.163.0(@types/node@24.19.2)
 
+  apps/image:
+    dependencies:
+      '@hussmartinez/image-sdk':
+        specifier: 0.6.0
+        version: 0.6.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@hussmartinez/sdk-core':
+        specifier: 0.4.4
+        version: 0.4.4
+      '@hussmartinez/ui':
+        specifier: 0.10.0
+        version: 0.10.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react:
+        specifier: 'catalog:'
+        version: 19.3.1
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.3.1(react@19.3.1)
+    devDependencies:
+      '@editor-apps/build-config':
+        specifier: workspace:*
+        version: link:../../packages/build-config
+      '@hussmartinez/sdk-config':
+        specifier: 'catalog:'
+        version: 0.9.0(@biomejs/biome@2.6.8)(@playwright/test@1.65.1)(typescript@6.0.3)(vitest@5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1)))
+      '@playwright/test':
+        specifier: 'catalog:'
+        version: 1.65.1
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.19.2
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.3.0(@types/react@19.3.0)
+      '@vitejs/plugin-react':
+        specifier: 'catalog:'
+        version: 6.3.0(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1))
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1)
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.163.0(@types/node@24.19.2)
+
   apps/video:
     dependencies:
       '@hussmartinez/sdk-core':
@@ -654,6 +703,18 @@ packages:
       react-dom:
         optional: true
 
+  '@hussmartinez/image-sdk@0.6.0':
+    resolution: {integrity: sha512-P77vI+Lwf2gxaKRkAwGb6gwbaG5SiFscZyQcRWcdvfwNsP4bkCjVm6O78iigWJVstyHxg1RGit6lyph99Zfmyw==}
+    engines: {node: '>=24'}
+    peerDependencies:
+      react: '>=18.3'
+      react-dom: '>=18.3'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
   '@hussmartinez/sdk-config@0.9.0':
     resolution: {integrity: sha512-s26RRK2G7xIWN0uqw+hOamarjLFdE5WCby7FMpTpt0HoGJEmkqwGYqkMxTTvnMgQ1caXppI6vEiw95n5O4bx+w==}
     engines: {node: '>=24'}
@@ -699,6 +760,17 @@ packages:
 
   '@hussmartinez/sdk-core@0.4.4':
     resolution: {integrity: sha512-WT8DUW1MTWk2mbMhF2uTBb4dYI1AFuBMAW8rI4ADtLi2zr+OsN5aSErmHUlrMNmqjw963PyPIPDd4dvDxw2VuQ==}
+
+  '@hussmartinez/ui@0.10.0':
+    resolution: {integrity: sha512-RBnZ9QWo0CQ5HZB+VZl4l8W9y1faFAlZy6Lau1/d1QBO9RlRuP8hOJeQ49+h3a6B0doDCelApuy4PsrIr54LwQ==}
+    peerDependencies:
+      react: '>=18.3'
+      react-dom: '>=18.3'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
 
   '@hussmartinez/ui@0.7.0':
     resolution: {integrity: sha512-GsWxaQJXR0e/KFZ8glsD3Ou9MJTk0WUfJ7eayWaby3XNS4geHaYLIzaAuCiVsJAH+GnG5t7G6ddv2/zFybfdRQ==}
@@ -1687,6 +1759,14 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
+  '@hussmartinez/image-sdk@0.6.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      '@hussmartinez/sdk-core': 0.4.4
+      '@hussmartinez/ui': 0.10.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+    optionalDependencies:
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+
   '@hussmartinez/sdk-config@0.9.0(@biomejs/biome@2.6.8)(@playwright/test@1.65.1)(typescript@6.0.3)(vitest@5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1)))':
     dependencies:
       '@commitlint/config-conventional': 21.2.4
@@ -1701,6 +1781,13 @@ snapshots:
       vitest: 5.1.0(@types/node@24.19.2)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1))
 
   '@hussmartinez/sdk-core@0.4.4': {}
+
+  '@hussmartinez/ui@0.10.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      '@hussmartinez/sdk-core': 0.4.4
+    optionalDependencies:
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
 
   '@hussmartinez/ui@0.7.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
