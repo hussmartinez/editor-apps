@@ -11,13 +11,27 @@ import { appConfig } from "./app.config.ts";
 
 /**
  * What image-sdk's events mean for the leave guard (docs/adr/0002): an
- * edit arms it; an export, or opening an image, clears it. Failed and
- * cancelled steps change nothing. The export event comes when the file is
- * ready in the export dialog, before its Download button is pressed.
+ * edit arms it; pressing the export dialog's Download, or opening an
+ * image, clears it. Building the export changes nothing, since the file
+ * isn't downloaded yet. Failed and cancelled steps change nothing either.
+ * A new event type fails to type-check here until it's placed.
  */
 const unsavedAfter: UnsavedAfter<ImageSessionEvent> = ({ type, outcome }) => {
   if (outcome !== "done") return undefined;
-  return type !== "open" && type !== "export";
+  switch (type) {
+    case "insert":
+    case "execute":
+    case "undo":
+    case "redo":
+      return true;
+    case "open":
+    case "download":
+      return false;
+    case "export":
+      return undefined;
+    default:
+      return type satisfies never;
+  }
 };
 
 /**

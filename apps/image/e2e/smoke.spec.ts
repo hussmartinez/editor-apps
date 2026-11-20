@@ -39,7 +39,7 @@ test("the page is served with its headers, and has the shell's landmarks", async
   await expectThirdPartyLicenses(page, "@hussmartinez/image-sdk");
 });
 
-test("an image opens, is edited and exports as PNG, guarded until then, with the SDK's workers from this origin", async ({
+test("an image opens, is edited and downloads as PNG, guarded until then, with the SDK's workers from this origin", async ({
   page,
   problems,
 }) => {
@@ -58,8 +58,8 @@ test("an image opens, is edited and exports as PNG, guarded until then, with the
     timeout: 30_000,
   });
 
-  // The leave guard: off for an untouched image, on after an edit, and off
-  // again once it's exported.
+  // The leave guard: off for an untouched image, on after an edit, still on
+  // once the export is built, and off once Download is pressed.
   expect(await leavingAsks(page)).toBe(false);
   await page.getByRole("button", { name: "Rotate right", exact: true }).click();
   await expect.poll(() => leavingAsks(page)).toBe(true);
@@ -69,11 +69,12 @@ test("an image opens, is edited and exports as PNG, guarded until then, with the
   await dialog.getByRole("button", { name: "Export", exact: true }).click();
   const save = dialog.getByRole("button", { name: "Download" });
   await expect(save).toBeVisible({ timeout: 30_000 });
-  // Cleared once the file is ready: before Download is pressed (docs/adr/0002).
-  await expect.poll(() => leavingAsks(page)).toBe(false);
+  // Built, but not downloaded yet: still guarded (docs/adr/0002).
+  expect(await leavingAsks(page)).toBe(true);
   const saving = page.waitForEvent("download");
   await save.click();
   const png = await readFile(await (await saving).path());
+  await expect.poll(() => leavingAsks(page)).toBe(false);
   expect(png.subarray(0, 8)).toEqual(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
   // Turned a quarter, so the sides swap.
   expect(pngSize(png)).toEqual({ width: 48, height: 64 });
