@@ -291,8 +291,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/app-shell
       '@hussmartinez/image-sdk':
-        specifier: 0.9.0
-        version: 0.9.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.10.0
+        version: 0.10.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@hussmartinez/sdk-core':
         specifier: 'catalog:'
         version: 0.4.4
@@ -820,8 +820,8 @@ packages:
       react-dom:
         optional: true
 
-  '@hussmartinez/image-sdk@0.9.0':
-    resolution: {integrity: sha512-DKWiZk/rVPOtwPLKCgF+A4u6g5ikUaCkXn4/b+22uu6RTqLd+P7QSRiMP+vC+QOvi7Rw2VTWRxNs1C9mqUBWVw==}
+  '@hussmartinez/image-sdk@0.10.0':
+    resolution: {integrity: sha512-R9qoQ8XId2QGNEALJ9uoVUH1L/U4e6pvCovLeHzHpJplRHHXFuspwMNVQBBpeortlxJhC9lzNO7M4+fzorlt6A==}
     engines: {node: '>=24'}
     peerDependencies:
       react: '>=18.3'
@@ -1949,7 +1949,7 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
-  '@hussmartinez/image-sdk@0.9.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@hussmartinez/image-sdk@0.10.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@hussmartinez/sdk-core': 0.4.4
       '@hussmartinez/ui': 0.15.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
