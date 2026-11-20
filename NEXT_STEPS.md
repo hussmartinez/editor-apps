@@ -35,7 +35,7 @@ After the imports, the reviewer points each Worker's Workers Builds connection a
 
 - [x] **`packages/app-shell`:** the shared page, error boundary and messages in all four apps, with screenshot tests of its header (ADR 0002).
 - [x] **The leave guard,** in the shell: the browser's own warning before leaving with unexported edits, from each SDK's events (ADR 0002).
-- [ ] **Clear the guard on download, not on export,** in image, audio and video, once their SDKs report that the file was saved.
+- [x] **Clear the guard on download, not on export,** in image, audio and video, from their SDKs' download events (ADR 0002).
 - [x] **The ad slot,** in the shell: a fixed 160 × 600 placeholder with each app's own art (ADR 0007).
 - [ ] **Real ads:** the isolated frame of ADR 0006 in the slot, under ADR 0007's contract. It needs a domain on a separate site first.
 

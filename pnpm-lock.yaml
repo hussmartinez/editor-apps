@@ -239,8 +239,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/app-shell
       '@hussmartinez/audio-sdk':
-        specifier: 0.7.5
-        version: 0.7.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.9.0
+        version: 0.9.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@hussmartinez/sdk-core':
         specifier: 'catalog:'
         version: 0.4.4
@@ -808,8 +808,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@hussmartinez/audio-sdk@0.7.5':
-    resolution: {integrity: sha512-vOMwyk1Z4/6ZU33B1lko8o6IrwRY18NK/h65LbjXQ34IcwUjU9OHcxI0qUNbvPU2qHLv84voUbtB05N8D/r9qA==}
+  '@hussmartinez/audio-sdk@0.9.0':
+    resolution: {integrity: sha512-ua76QlnIXQTq4Qy84szAO4FbNWNnye0smJCm8zliHtESGCZ8iz3gj+Zgah42+c+BFUXtdUFmSG8gqAl9BxVGaQ==}
     engines: {node: '>=24'}
     peerDependencies:
       react: '>=18.3'
@@ -1941,7 +1941,7 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
-  '@hussmartinez/audio-sdk@0.7.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@hussmartinez/audio-sdk@0.9.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@hussmartinez/sdk-core': 0.4.4
       '@hussmartinez/ui': 0.15.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)

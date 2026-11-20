@@ -11,23 +11,27 @@ import { appConfig } from "./app.config.ts";
 
 /**
  * What audio-sdk's events mean for the leave guard (docs/adr/0002): an
- * edit arms it; an export, or opening or closing a recording, clears it.
- * A failure changes nothing. The export event comes when the file is
- * ready in the export dialog, before its Download button is pressed.
+ * edit arms it; pressing the export dialog's Download, or opening or
+ * closing a recording, clears it. Building the export changes nothing,
+ * since the file isn't downloaded yet, and a failure changes nothing
+ * either. A new event type fails to type-check here until it's placed.
  */
-const unsavedAfter: UnsavedAfter<AudioSessionEvent> = (event) => {
-  switch (event.type) {
+const unsavedAfter: UnsavedAfter<AudioSessionEvent> = ({ type }) => {
+  switch (type) {
     case "recording_inserted":
     case "command":
     case "undo":
     case "redo":
       return true;
     case "recording_opened":
-    case "recording_exported":
+    case "recording_downloaded":
     case "recording_closed":
       return false;
-    default:
+    case "recording_exported":
+    case "failed":
       return undefined;
+    default:
+      return type satisfies never;
   }
 };
 
