@@ -41,7 +41,7 @@ test("the page is served with its headers, and has the shell's landmarks", async
   await expectThirdPartyLicenses(page, "@hussmartinez/video-sdk");
 });
 
-test("a video opens and exports, guarded until then, with the SDK's workers from this origin", async ({
+test("a video opens and downloads, guarded until then, with the SDK's workers from this origin", async ({
   page,
   problems,
 }) => {
@@ -57,8 +57,8 @@ test("a video opens and exports, guarded until then, with the SDK's workers from
   });
   await expect(page.getByRole("listbox", { name: "Clips" }).getByRole("option")).toHaveCount(1);
 
-  // The leave guard: adding a clip is already an edit, so it's on, and it's
-  // off again once the video is exported.
+  // The leave guard: adding a clip is already an edit, so it's on. It stays
+  // on once the export is built, and it's off once Download is pressed.
   await expect.poll(() => leavingAsks(page)).toBe(true);
 
   await page.getByRole("button", { name: "Export the video", exact: true }).click();
@@ -66,11 +66,12 @@ test("a video opens and exports, guarded until then, with the SDK's workers from
   await dialog.getByRole("button", { name: "Export", exact: true }).click();
   const download = dialog.getByRole("button", { name: /^Download/ });
   await expect(download).toBeEnabled({ timeout: 90_000 });
-  // Cleared once the file is ready: before Download is pressed (docs/adr/0002).
-  await expect.poll(() => leavingAsks(page)).toBe(false);
+  // Built, but not downloaded yet: still guarded (docs/adr/0002).
+  expect(await leavingAsks(page)).toBe(true);
   const saving = page.waitForEvent("download");
   await download.click();
   const video = await readFile(await (await saving).path());
+  await expect.poll(() => leavingAsks(page)).toBe(false);
 
   // A WebM or MP4 file, with a video track. Only the type is checked: the
   // frames are video-sdk's to test.
