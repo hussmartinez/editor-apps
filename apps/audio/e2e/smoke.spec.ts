@@ -62,7 +62,7 @@ test("the page is served with its headers, and has the shell's landmarks", async
   await expectThirdPartyLicenses(page, "@hussmartinez/audio-sdk");
 });
 
-test("a recording opens, is edited and exports as WAV, guarded until then, with the SDK's worker from this origin", async ({
+test("a recording opens, is edited and downloads as WAV, guarded until then, with the SDK's worker from this origin", async ({
   page,
   problems,
 }) => {
@@ -77,8 +77,8 @@ test("a recording opens, is edited and exports as WAV, guarded until then, with 
   const exportTool = page.getByRole("toolbar").getByRole("button", { name: "Export", exact: true });
   await expect(exportTool).toBeEnabled({ timeout: 30_000 });
 
-  // The leave guard: off for an untouched recording, on after an edit, and
-  // off again once it's exported.
+  // The leave guard: off for an untouched recording, on after an edit, still
+  // on once the export is built, and off once Download is pressed.
   expect(await leavingAsks(page)).toBe(false);
   await page.getByRole("toolbar").getByRole("button", { name: "Add track", exact: true }).click();
   await expect.poll(() => leavingAsks(page)).toBe(true);
@@ -88,11 +88,12 @@ test("a recording opens, is edited and exports as WAV, guarded until then, with 
   await dialog.getByRole("button", { name: "Export", exact: true }).click();
   const download = dialog.getByRole("button", { name: "Download" });
   await expect(download).toBeVisible({ timeout: 30_000 });
-  // Cleared once the file is ready: before Download is pressed (docs/adr/0002).
-  await expect.poll(() => leavingAsks(page)).toBe(false);
+  // Built, but not downloaded yet: still guarded (docs/adr/0002).
+  expect(await leavingAsks(page)).toBe(true);
   const saving = page.waitForEvent("download");
   await download.click();
   const saved = await saving;
+  await expect.poll(() => leavingAsks(page)).toBe(false);
   expect(saved.suggestedFilename()).toMatch(/\.wav$/);
   const wav = await readFile(await saved.path());
   expect(wav.toString("ascii", 0, 4)).toBe("RIFF");
