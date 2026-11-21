@@ -12,7 +12,8 @@ packages:
 # moves its SDK on its own schedule, within the ui version set here.
 catalog:
   "@biomejs/biome": 2.6.8
-  "@hussmartinez/sdk-config": 0.9.0
+  "@commitlint/cli": 21.2.4
+  "@hussmartinez/sdk-config": 0.11.3
   "@hussmartinez/sdk-core": 0.4.7
   "@hussmartinez/ui": 0.15.0
   "@playwright/test": 1.65.1
@@ -21,8 +22,12 @@ catalog:
   "@types/react-dom": 19.3.0
   "@vitejs/plugin-react": 6.3.0
   happy-dom: 21.0.4
+  husky: 9.1.7
+  lint-staged: 17.6.1
   react: 19.3.1
   react-dom: 19.3.1
+  secretlint: 13.1.0
+  stylelint: 18.0.0
   typescript: 6.0.3
   vite: 8.3.8
   vitest: 5.1.0
