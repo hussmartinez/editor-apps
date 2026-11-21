@@ -431,8 +431,8 @@ importers:
         specifier: 'catalog:'
         version: 0.15.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@hussmartinez/video-sdk':
-        specifier: 0.8.2
-        version: 0.8.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.8.3
+        version: 0.8.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react:
         specifier: 'catalog:'
         version: 19.3.1
@@ -1071,8 +1071,8 @@ packages:
       react-dom:
         optional: true
 
-  '@hussmartinez/video-sdk@0.8.2':
-    resolution: {integrity: sha512-D4IJewqcwnj3JG8F4GWNDn/8217vHvYLBhkrcF27rqhF7WIsn4yMRT23vWNSm7JNztpQlXQ0IGsF5QXNCRavgw==}
+  '@hussmartinez/video-sdk@0.8.3':
+    resolution: {integrity: sha512-wKKUrysB6vw/l71kOMWSVSgqPnxbOYgPZBC7acCfFydcc8l0bLgKs4bU151/D5P/RJke9TRRbSU8TDE3aU+AkQ==}
     engines: {node: '>=24'}
     peerDependencies:
       react: '>=18.3'
@@ -2779,7 +2779,7 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
-  '@hussmartinez/video-sdk@0.8.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@hussmartinez/video-sdk@0.8.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@hussmartinez/sdk-core': 0.4.7
       '@hussmartinez/ui': 0.15.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
