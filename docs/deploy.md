@@ -52,16 +52,18 @@ pnpm --filter @editor-apps/<app> run build
 pnpm --filter @editor-apps/<app> run test:e2e
 ```
 
-That tests in Chromium. For every browser the app supports, as CI runs nightly, set `SMOKE_ENGINES` inside the image: the image runner doesn't pass the variable through from the host. From the app's folder:
+That tests in Chromium. For every browser the app supports, as CI runs nightly, set `SMOKE_ENGINES=all`. `hm-in-image` passes it into the image, with `SMOKE_BASE_URL` and `SMOKE_ANALYTICS`:
 
 ```sh
-pnpm exec hm-in-image env SMOKE_ENGINES=all playwright test
+SMOKE_ENGINES=all pnpm --filter @editor-apps/<app> run test:e2e
 ```
+
+Browser tests refuse to start outside the image and CI: on a host, Docker's network changes make them fail at random (sdk-core ADR 0049). To debug with a headed browser on your machine, set `HM_ALLOW_HOST_BROWSER=1` for that one run, never to check a change.
 
 To check a deployment instead of the local build, set `SMOKE_BASE_URL` to the app's address, the same way. No build or server is needed then. If the deployment has an analytics key, its events are answered in the browser by the test and never reach the provider; add `SMOKE_ANALYTICS=on` so the test expects the analytics host in the app's policy, which it can't see from here.
 
 ```sh
-pnpm exec hm-in-image env SMOKE_BASE_URL=https://<the app's address> playwright test
+SMOKE_BASE_URL=https://<the app's address> pnpm --filter @editor-apps/<app> run test:e2e
 ```
 
 ## Deploying by hand

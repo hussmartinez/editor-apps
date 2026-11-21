@@ -1,6 +1,7 @@
 import { createRequire } from "node:module";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
+import { visualComparison } from "@hussmartinez/sdk-config/testing/visual";
 import {
   test as base,
   defineConfig,
@@ -16,6 +17,9 @@ import { loadEnv } from "vite";
  * against its built output, served with production's headers, and fail on
  * anything the app must never do.
  */
+
+/** Resolves from this package, which depends on sdk-config, whatever app runs it. */
+const require = createRequire(import.meta.url);
 
 export type Engine = "chromium" | "firefox" | "webkit";
 
@@ -51,8 +55,14 @@ export function smokeConfig({ port, engines }: SmokeOptions): PlaywrightTestConf
     forbidOnly: Boolean(process.env.CI),
     retries: 0,
     reporter: process.env.CI ? "line" : "list",
+    // Browser tests run only in the pinned image or CI (sdk-core ADR 0049):
+    // on a host, Docker's network changes make them fail at random.
+    globalSetup: require.resolve("@hussmartinez/sdk-config/testing/require-image"),
     // Committed next to the tests, one set per browser; see expectShellLook.
     snapshotPathTemplate: "{testDir}/__screenshots__/{projectName}/{arg}{ext}",
+    // The family's strict comparison (sdk-core ADR 0054): a pixel differs
+    // when it's more than one colour level from its baseline, and none may.
+    expect: { toHaveScreenshot: { ...visualComparison } },
     use: { baseURL: url, trace: "retain-on-failure" },
     projects: run.map((engine) => ({ name: engine, use: { ...devices[DEVICES[engine]] } })),
     ...(deployment
