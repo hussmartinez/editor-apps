@@ -1,6 +1,6 @@
 # 0003. Test the app, not the SDK; Playwright in one pinned image
 
-- **Status:** Accepted
+- **Status:** Accepted, amended 2026-11-21
 - **Date:** 2026-11-18
 
 ## Context
@@ -61,3 +61,7 @@ An app's tests cover only what the app adds.
 - **An SDK regression can reach an app untested here.** The SDK's own suite and the round trip are the guard, and upgrades are one pull request per app.
 - **Local browser tests need Docker.**
 - **Trimming the suites is a judgement** made once per app, recorded in that app's import pull request with the list of what was dropped and why.
+
+## Amendments
+
+- **2026-11-21, strict screenshots and the image guard:** the shell's screenshots are compared with sdk-config's `visualComparison` (sdk-core ADR 0054): a pixel differs when its colour is more than one level from the baseline's, and none may. Until then they used Playwright's default threshold of 0.2 by accident, under which a colour token one step off passed. The committed baselines pass the strict comparison in the image unchanged. `smokeConfig` also has sdk-config's `require-image` global setup, so browser tests refuse to start outside the image and CI.

@@ -17,6 +17,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@hussmartinez/sdk-config": "catalog:",
     "yaml": "catalog:"
   },
   "peerDependencies": {
