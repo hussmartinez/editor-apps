@@ -373,8 +373,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/app-shell
       '@hussmartinez/pdf-sdk':
-        specifier: 0.4.4
-        version: 0.4.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.4.5
+        version: 0.4.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@hussmartinez/sdk-core':
         specifier: 'catalog:'
         version: 0.4.7
@@ -996,8 +996,8 @@ packages:
       react-dom:
         optional: true
 
-  '@hussmartinez/pdf-sdk@0.4.4':
-    resolution: {integrity: sha512-7bWRQP6G+ROikCGvS27wxN5X0LBjrWNUFEeXvI+P0TgaTUi2207b32lH6T5/3wMQSszvpaZuCIo5qU4TT5F3Yg==}
+  '@hussmartinez/pdf-sdk@0.4.5':
+    resolution: {integrity: sha512-4/3ysDfx/EiLhxK6OWnGtVeFCmQMDFTGDYC2ZDa9jIr5kKsUkXBCnpnBZ9VouabCItLr2U+yyPdfmMcr8KlDrA==}
     engines: {node: '>=24'}
     peerDependencies:
       react: '>=18.3'
@@ -2742,7 +2742,7 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
-  '@hussmartinez/pdf-sdk@0.4.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@hussmartinez/pdf-sdk@0.4.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@hussmartinez/sdk-core': 0.4.7
       '@hussmartinez/ui': 0.15.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
