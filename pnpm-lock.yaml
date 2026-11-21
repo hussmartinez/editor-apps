@@ -171,8 +171,8 @@ catalogs:
       specifier: 21.2.4
       version: 21.2.4
     '@hussmartinez/sdk-config':
-      specifier: 0.11.3
-      version: 0.11.3
+      specifier: 0.11.4
+      version: 0.11.4
     '@hussmartinez/sdk-core':
       specifier: 0.4.7
       version: 0.4.7
@@ -243,7 +243,7 @@ importers:
         version: 21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3)
       '@hussmartinez/sdk-config':
         specifier: 'catalog:'
-        version: 0.11.3(@biomejs/biome@2.6.8)(@commitlint/cli@21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@playwright/test@1.65.1)(ajv@8.20.0)(esbuild@0.28.2)(lint-staged@17.6.1)(secretlint@13.1.0(supports-color@10.2.2))(stylelint@18.0.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.1.0(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
+        version: 0.11.4(@biomejs/biome@2.6.8)(@commitlint/cli@21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@playwright/test@1.65.1)(ajv@8.20.0)(esbuild@0.28.2)(lint-staged@17.6.1)(secretlint@13.1.0(supports-color@10.2.2))(stylelint@18.0.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.1.0(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@playwright/test':
         specifier: 'catalog:'
         version: 1.65.1
@@ -289,7 +289,7 @@ importers:
         version: link:../../packages/build-config
       '@hussmartinez/sdk-config':
         specifier: 'catalog:'
-        version: 0.11.3(@biomejs/biome@2.6.8)(@commitlint/cli@21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@playwright/test@1.65.1)(ajv@8.20.0)(esbuild@0.28.2)(lint-staged@17.6.1)(secretlint@13.1.0(supports-color@10.2.2))(stylelint@18.0.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.1.0(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
+        version: 0.11.4(@biomejs/biome@2.6.8)(@commitlint/cli@21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@playwright/test@1.65.1)(ajv@8.20.0)(esbuild@0.28.2)(lint-staged@17.6.1)(secretlint@13.1.0(supports-color@10.2.2))(stylelint@18.0.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.1.0(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@playwright/test':
         specifier: 'catalog:'
         version: 1.65.1
@@ -341,7 +341,7 @@ importers:
         version: link:../../packages/build-config
       '@hussmartinez/sdk-config':
         specifier: 'catalog:'
-        version: 0.11.3(@biomejs/biome@2.6.8)(@commitlint/cli@21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@playwright/test@1.65.1)(ajv@8.20.0)(esbuild@0.28.2)(lint-staged@17.6.1)(secretlint@13.1.0(supports-color@10.2.2))(stylelint@18.0.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.1.0(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
+        version: 0.11.4(@biomejs/biome@2.6.8)(@commitlint/cli@21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@playwright/test@1.65.1)(ajv@8.20.0)(esbuild@0.28.2)(lint-staged@17.6.1)(secretlint@13.1.0(supports-color@10.2.2))(stylelint@18.0.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.1.0(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@playwright/test':
         specifier: 'catalog:'
         version: 1.65.1
@@ -393,7 +393,7 @@ importers:
         version: link:../../packages/build-config
       '@hussmartinez/sdk-config':
         specifier: 'catalog:'
-        version: 0.11.3(@biomejs/biome@2.6.8)(@commitlint/cli@21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@playwright/test@1.65.1)(ajv@8.20.0)(esbuild@0.28.2)(lint-staged@17.6.1)(secretlint@13.1.0(supports-color@10.2.2))(stylelint@18.0.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.1.0(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
+        version: 0.11.4(@biomejs/biome@2.6.8)(@commitlint/cli@21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@playwright/test@1.65.1)(ajv@8.20.0)(esbuild@0.28.2)(lint-staged@17.6.1)(secretlint@13.1.0(supports-color@10.2.2))(stylelint@18.0.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.1.0(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@playwright/test':
         specifier: 'catalog:'
         version: 1.65.1
@@ -445,7 +445,7 @@ importers:
         version: link:../../packages/build-config
       '@hussmartinez/sdk-config':
         specifier: 'catalog:'
-        version: 0.11.3(@biomejs/biome@2.6.8)(@commitlint/cli@21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@playwright/test@1.65.1)(ajv@8.20.0)(esbuild@0.28.2)(lint-staged@17.6.1)(secretlint@13.1.0(supports-color@10.2.2))(stylelint@18.0.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.1.0(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
+        version: 0.11.4(@biomejs/biome@2.6.8)(@commitlint/cli@21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@playwright/test@1.65.1)(ajv@8.20.0)(esbuild@0.28.2)(lint-staged@17.6.1)(secretlint@13.1.0(supports-color@10.2.2))(stylelint@18.0.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.1.0(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
       '@playwright/test':
         specifier: 'catalog:'
         version: 1.65.1
@@ -522,7 +522,7 @@ importers:
     dependencies:
       '@hussmartinez/sdk-config':
         specifier: 'catalog:'
-        version: 0.11.3(@biomejs/biome@2.6.8)(@commitlint/cli@21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@playwright/test@1.65.1)(ajv@8.20.0)(esbuild@0.28.2)(lint-staged@17.6.1)(secretlint@13.1.0(supports-color@10.2.2))(stylelint@18.0.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.1.0(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
+        version: 0.11.4(@biomejs/biome@2.6.8)(@commitlint/cli@21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@playwright/test@1.65.1)(ajv@8.20.0)(esbuild@0.28.2)(lint-staged@17.6.1)(secretlint@13.1.0(supports-color@10.2.2))(stylelint@18.0.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.1.0(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))
       yaml:
         specifier: 'catalog:'
         version: 2.9.1
@@ -1008,8 +1008,8 @@ packages:
       react-dom:
         optional: true
 
-  '@hussmartinez/sdk-config@0.11.3':
-    resolution: {integrity: sha512-pjKI+xl5wbF/qu69WxmU84OEcHhZJ8P6/Aq1fKamARLGG2fC4ed6cr9Jnzk1jU0Jh47Ws1gguPTaN/pO7fCejg==}
+  '@hussmartinez/sdk-config@0.11.4':
+    resolution: {integrity: sha512-dPan2UvnJ/IPvUIi3YaszubzsyvPW5/pvjD/BEw66QaxptjE11yw9+Y2AlZdH60oaTYMWleRnHlb802ieYpaFg==}
     engines: {node: '>=24'}
     hasBin: true
     peerDependencies:
@@ -2750,7 +2750,7 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
-  '@hussmartinez/sdk-config@0.11.3(@biomejs/biome@2.6.8)(@commitlint/cli@21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@playwright/test@1.65.1)(ajv@8.20.0)(esbuild@0.28.2)(lint-staged@17.6.1)(secretlint@13.1.0(supports-color@10.2.2))(stylelint@18.0.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.1.0(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))':
+  '@hussmartinez/sdk-config@0.11.4(@biomejs/biome@2.6.8)(@commitlint/cli@21.2.4(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@playwright/test@1.65.1)(ajv@8.20.0)(esbuild@0.28.2)(lint-staged@17.6.1)(secretlint@13.1.0(supports-color@10.2.2))(stylelint@18.0.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.1.0(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.8(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))':
     dependencies:
       '@commitlint/config-conventional': 21.2.4
       '@secretlint/secretlint-rule-preset-recommend': 13.1.0
