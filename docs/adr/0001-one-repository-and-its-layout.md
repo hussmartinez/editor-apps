@@ -22,7 +22,7 @@ The four apps move to this repository, `editor-apps`, which is public.
 
 - **Public, so that CI is free** and runs on every pull request ([ADR 0004](0004-ci-deploys-and-review-tiers.md)). The SDKs are already open source, and the apps add little to them.
 - **No secrets in the repository,** now or in its history. Cloudflare credentials stay in Workers Builds. An analytics key is a public client key, and comes from a build variable ([ADR 0005](0005-analytics-and-consent.md)).
-- **Fresh history.** The old repositories' histories are not imported: they were written as private, and hold host paths, runner names and account details. Each app arrives as one import commit, whose message names the private repository and the commit it came from, without a link, such as `Imported from the private pdf-editor repository at 39eb96f`.
+- **Fresh history.** The old repositories' histories are not imported: they were written as private, and hold host paths, runner names and account details. Each app arrives as one import commit with a Conventional Commit header, such as `feat(pdf): import the PDF editor`, whose body names the private repository and the commit it came from, without a link, such as `Imported from the private pdf-editor repository at 39eb96f`.
 - **Everything imported is reviewed as public text first:** READMEs, next-step notes, comments and fixtures. Machine paths, credential file locations, self-hosted runner details and Cloudflare Access policy names don't come along.
 - **The old repositories are archived, not deleted,** once this repository deploys all four apps. They stay private.
 - **The old widget code is not carried over.** Each old repository still has a frozen `packages/widget` and an embedding example, which the SDKs replaced.

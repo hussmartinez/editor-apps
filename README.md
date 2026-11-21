@@ -42,7 +42,7 @@ pnpm verify
 
 - **On commit,** staged files get a secret scan, a hidden-character check and Biome's safe fixes, and CSS gets stylelint.
 - **On the commit message,** commitlint checks it's a Conventional Commit.
-- **On push,** `pnpm verify:fast` runs the checks above except lint, which the commit hook already ran.
+- **On push,** `pnpm verify:fast` runs the checks above except lint. The commit hook lints only the files it stages, so a change elsewhere, such as to a lint configuration, is caught by the full `pnpm lint`, which `pnpm verify` and CI run.
 
 CI also builds each app a change affects, checks that it would deploy, and runs its smoke test in the pinned image. `pnpm affected <base>` prints which apps those are. To run an app's smoke test locally, build it, then run `pnpm --filter @editor-apps/<app> test:e2e`, which needs Docker.
 
