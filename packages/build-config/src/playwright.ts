@@ -1,6 +1,7 @@
 import { createRequire } from "node:module";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
+import { webServersFor } from "@hussmartinez/sdk-config/testing/require-image";
 import { visualComparison } from "@hussmartinez/sdk-config/testing/visual";
 import {
   test as base,
@@ -65,15 +66,16 @@ export function smokeConfig({ port, engines }: SmokeOptions): PlaywrightTestConf
     expect: { toHaveScreenshot: { ...visualComparison } },
     use: { baseURL: url, trace: "retain-on-failure" },
     projects: run.map((engine) => ({ name: engine, use: { ...devices[DEVICES[engine]] } })),
+    // None where the guard will refuse, so a refused run starts no server.
     ...(deployment
       ? {}
       : {
-          webServer: {
+          webServer: webServersFor({
             command: `pnpm exec vite preview --host 127.0.0.1 --port ${port} --strictPort`,
             url,
             reuseExistingServer: !process.env.CI,
             timeout: 60_000,
-          },
+          }),
         }),
   });
 }
