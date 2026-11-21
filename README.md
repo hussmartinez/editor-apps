@@ -31,12 +31,18 @@ pnpm verify
 
 | Step                                                                              | Script                        |
 | --------------------------------------------------------------------------------- | ----------------------------- |
-| Format and lint, with Biome                                                       | `pnpm lint`                   |
+| Format and lint, with Biome and stylelint, and no hidden characters               | `pnpm lint`                   |
 | Types                                                                             | `pnpm typecheck`              |
 | Unit tests, with Vitest                                                           | `pnpm test`                   |
 | One copy of each shared package in each app, and one ui and sdk-core for all apps | `pnpm check:single-copy`      |
 | No domain outside app configuration                                               | `pnpm check:domains`          |
 | Playwright pinned to the image's version                                          | `pnpm check:playwright-image` |
+
+`pnpm install` also sets up git hooks, as in the SDK repositories, from `@hussmartinez/sdk-config`'s presets:
+
+- **On commit,** staged files get a secret scan, a hidden-character check and Biome's safe fixes, and CSS gets stylelint.
+- **On the commit message,** commitlint checks it's a Conventional Commit.
+- **On push,** `pnpm verify:fast` runs the checks above except lint, which the commit hook already ran.
 
 CI also builds each app a change affects, checks that it would deploy, and runs its smoke test in the pinned image. `pnpm affected <base>` prints which apps those are. To run an app's smoke test locally, build it, then run `pnpm --filter @editor-apps/<app> test:e2e`, which needs Docker.
 

@@ -156,6 +156,7 @@ export const test = base.extend<SmokeTestOptions & { problems: Problems }>({
       });
       await page.addInitScript(() => {
         document.addEventListener("securitypolicyviolation", (event) => {
+          // biome-ignore lint/suspicious/noConsole: the console is how problems hears of it.
           console.error(`Policy violation: ${event.violatedDirective} ${event.blockedURI}`);
         });
       });

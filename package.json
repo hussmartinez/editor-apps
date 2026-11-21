@@ -8,7 +8,8 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "lint": "biome check .",
+    "lint": "biome check . && pnpm lint:css && hm-check-hidden-unicode",
+    "lint:css": "stylelint \"**/*.css\" --allow-empty-input",
     "lint:fix": "biome check --write .",
     "typecheck": "pnpm -r run typecheck",
     "test": "pnpm -r run test",
@@ -17,12 +18,19 @@
     "check:domains": "node packages/build-config/src/cli/check-domains.ts",
     "check:playwright-image": "hm-check-playwright-image",
     "affected": "node packages/build-config/src/cli/affected-apps.ts",
-    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm check:single-copy && pnpm check:domains && pnpm check:playwright-image"
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm check:single-copy && pnpm check:domains && pnpm check:playwright-image",
+    "verify:fast": "pnpm typecheck && pnpm test && pnpm check:single-copy && pnpm check:domains && pnpm check:playwright-image",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
+    "@commitlint/cli": "catalog:",
     "@hussmartinez/sdk-config": "catalog:",
     "@playwright/test": "catalog:",
+    "husky": "catalog:",
+    "lint-staged": "catalog:",
+    "secretlint": "catalog:",
+    "stylelint": "catalog:",
     "typescript": "catalog:"
   }
 }

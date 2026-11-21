@@ -11,6 +11,7 @@ body,
 
 body {
   margin: 0;
+  /* stylelint-disable-next-line hm/no-literal-values -- WCAG reflow's narrowest viewport. */
   min-inline-size: 320px;
   background: var(--hm-color-bg);
   color: var(--hm-color-text);
@@ -22,6 +23,7 @@ body {
 .app-shell {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
+  /* stylelint-disable-next-line hm/no-literal-values -- the whole visible viewport. */
   block-size: 100dvh;
 }
 
@@ -30,7 +32,7 @@ body {
   position: fixed;
   inset-block-start: var(--hm-inset-tight);
   inset-inline-start: var(--hm-inset-tight);
-  z-index: 1;
+  z-index: var(--hm-z-raised);
   padding: var(--hm-inset-tight) var(--hm-inset-normal);
   border-radius: var(--hm-radius-control);
   background: var(--hm-color-accent);
@@ -99,11 +101,13 @@ body {
 
 .app-shell-main > .app-editor {
   flex: 1;
+  /* stylelint-disable-next-line hm/no-literal-values -- the editor's usable minimum on a short screen. */
   min-block-size: 32rem;
   min-inline-size: 0;
 }
 
 .app-shell-crash {
+  /* stylelint-disable-next-line hm/no-literal-values -- a readable line length for the crash message. */
   max-inline-size: 36rem;
   margin: var(--hm-inset-loose) auto;
 }
@@ -135,8 +139,10 @@ body {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  /* stylelint-disable hm/no-literal-values -- the IAB wide skyscraper (docs/adr/0007). */
   inline-size: 160px;
   block-size: 600px;
+  /* stylelint-enable hm/no-literal-values */
   overflow: hidden;
   border: var(--hm-border-width) dashed var(--hm-color-border-strong);
   border-radius: var(--hm-radius-md);
