@@ -41,7 +41,7 @@ After the imports, the reviewer points each Worker's Workers Builds connection a
 
 ## One ui version for every app
 
-Done on 2026-11-19: every app bundles ui 0.15.0 and sdk-core 0.4.4, and `pnpm check:single-copy` fails if the apps ever differ (ADR 0001).
+Done on 2026-11-19: every app bundles one ui and one sdk-core, set in the pnpm catalog, and `pnpm check:single-copy` fails if the apps ever differ (ADR 0001).
 
 - [x] **The SDKs converge on one ui minor,** and `app-shell` may use all of it.
 - [x] **ui and sdk-core in the pnpm catalog:** one line sets them for every app; a new minor also needs every SDK to accept it and app-shell's peer range moved (ADR 0001). The check stays as a guard.
